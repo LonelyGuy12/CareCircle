@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+body {
+  @apply bg-slate-50 text-slate-900;
+  font-size: 17px; /* slightly larger base text for accessibility */
+}
