@@ -1,0 +1,61 @@
+{
+  "careRecipient": {
+    "id": "cr_1",
+    "name": "Margaret Thomas",
+    "age": 78,
+    "conditions": ["Hypertension", "Type 2 diabetes"],
+    "notes": "Prefers reminders in the morning. Hard of hearing on the left side.",
+    "emergencyContacts": [
+      { "name": "Daniel Thomas", "relation": "Son", "phone": "+91 98765 43210" },
+      { "name": "Dr. Priya Nair", "relation": "Family doctor", "phone": "+91 91234 56789" }
+    ]
+  },
+  "caregiver": { "id": "cg_1", "name": "Daniel Thomas" },
+  "medications": [
+    { "id": "med_1", "name": "Amlodipine", "dosage": "5 mg", "times": ["09:00"], "instructions": "Blood pressure. Take with water." },
+    { "id": "med_2", "name": "Metformin", "dosage": "500 mg", "times": ["09:00", "20:00"], "instructions": "Take with meals." },
+    { "id": "med_3", "name": "Atorvastatin", "dosage": "10 mg", "times": ["21:00"], "instructions": "Take at bedtime." },
+    { "id": "med_4", "name": "Vitamin D3", "dosage": "1000 IU", "times": ["13:00"], "instructions": "Take after lunch." }
+  ],
+  "doseLogs": [
+    { "id": "dose_1", "medicationId": "med_1", "scheduledAt": "2026-09-24T09:00:00", "status": "taken", "confirmedAt": "2026-09-24T09:04:00", "confirmedVia": "alexa" },
+    { "id": "dose_2", "medicationId": "med_2", "scheduledAt": "2026-09-24T09:00:00", "status": "taken", "confirmedAt": "2026-09-24T09:05:00", "confirmedVia": "alexa" },
+    { "id": "dose_3", "medicationId": "med_4", "scheduledAt": "2026-09-24T13:00:00", "status": "missed", "confirmedAt": null, "confirmedVia": null },
+    { "id": "dose_4", "medicationId": "med_2", "scheduledAt": "2026-09-24T20:00:00", "status": "pending", "confirmedAt": null, "confirmedVia": null },
+    { "id": "dose_5", "medicationId": "med_3", "scheduledAt": "2026-09-24T21:00:00", "status": "pending", "confirmedAt": null, "confirmedVia": null }
+  ],
+  "weeklyAdherence": [
+    { "day": "Thu", "percent": 100 },
+    { "day": "Fri", "percent": 80 },
+    { "day": "Sat", "percent": 100 },
+    { "day": "Sun", "percent": 60 },
+    { "day": "Mon", "percent": 100 },
+    { "day": "Tue", "percent": 80 },
+    { "day": "Wed", "percent": 100 }
+  ],
+  "appointments": [
+    { "id": "appt_1", "title": "Cardiology check-up", "doctor": "Dr. Rao", "location": "City Heart Clinic", "dateTime": "2026-09-26T10:30:00", "notes": "Bring last BP readings." },
+    { "id": "appt_2", "title": "Blood sugar test", "doctor": "Lab", "location": "Apollo Diagnostics", "dateTime": "2026-09-29T08:00:00", "notes": "Fasting required." },
+    { "id": "appt_3", "title": "Eye exam", "doctor": "Dr. Menon", "location": "Vision Care Centre", "dateTime": "2026-10-05T16:00:00", "notes": "" }
+  ],
+  "summaries": [
+    {
+      "id": "sum_2026-09-23",
+      "date": "2026-09-23",
+      "headline": "Good day: all 5 doses taken.",
+      "text": "Margaret took all her medications on time, confirming each through Alexa. Her cardiology check-up is on Friday at 10:30am, so please bring her recent BP readings.",
+      "flags": []
+    },
+    {
+      "id": "sum_2026-09-22",
+      "date": "2026-09-22",
+      "headline": "1 missed dose (Vitamin D3).",
+      "text": "Margaret took 4 of 5 doses. The 1pm Vitamin D3 was not confirmed. A package was delivered at 3:12pm.",
+      "flags": ["missed_dose"]
+    }
+  ],
+  "alerts": [
+    { "id": "alert_1", "type": "missed_dose", "message": "Vitamin D3 (1pm) was not confirmed.", "createdAt": "2026-09-24T13:30:00", "read": false },
+    { "id": "alert_2", "type": "ring_delivery", "message": "Package delivered at the front door.", "createdAt": "2026-09-24T11:12:00", "read": true }
+  ]
+}
