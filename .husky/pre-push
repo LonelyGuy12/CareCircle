@@ -1,0 +1,15 @@
+#!/bin/sh
+echo "Running pre-push quality checks (Typecheck & ESLint)..."
+
+# Run type check and lint
+pnpm --filter backend run typecheck || {
+    echo "\033[31m[ERROR] Typecheck failed. Please fix TypeScript errors before pushing.\033[0m"
+    exit 1
+}
+
+pnpm --filter backend run lint || {
+    echo "\033[31m[ERROR] ESLint failed. Please fix lint errors before pushing.\033[0m"
+    exit 1
+}
+
+echo "\033[32m[SUCCESS] All checks passed! Proceeding with git push.\033[0m"
