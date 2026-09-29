@@ -1,0 +1,22 @@
+{
+    "extends": "../tsconfig.base.json",
+    "compilerOptions": {
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "rootDir": "./src",
+        "outDir": "./dist",
+        "declaration": true,
+        "declarationMap": true,
+        "sourceMap": true,
+        "types": ["node"],
+        "paths": {
+            "@infra/*": ["./src/infra/*"],
+            "@modules/*": ["./src/modules/*"],
+            "@platform/*": ["./src/platform/*"],
+            "@shared/*": ["./src/shared/*"],
+            "@/*": ["./src/*"]
+        }
+    },
+    "include": ["src/**/*", "src/generated"],
+    "exclude": ["node_modules", "dist"]
+}

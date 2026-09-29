@@ -1,0 +1,63 @@
+# Dependencies
+node_modules
+
+# Next.js build output
+.next
+out
+build
+dist
+
+# Prisma generated files
+prisma/migrations
+prisma/generated
+node_modules/.prisma
+.prisma
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Coverage
+coverage
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+
+# Lock files (optional, usually safe to ignore)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Static assets (optional - remove if you want formatting)
+public
+
+# Generated types (common patterns)
+*.d.ts
+
+# Storybook (if used)
+storybook-static
+
+# Misc
+.cache
+.tmp
+temp
+
+# IDE / Editor
+.vscode
+.idea
