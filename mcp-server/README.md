@@ -2,38 +2,44 @@
 
 MCP server exposing CareCircle's medication and appointment tools to an AI agent (e.g. Alexa+ via Bedrock).
 
+Part of the CareCircle pnpm monorepo — run `pnpm install` from the repo root, not inside this folder.
+
 ## Setup
 
-npm install
-cp .env.example .env   # set API_BASE_URL if not localhost:3000
+pnpm install
+cp .env.example .env # set API_BASE_URL if not localhost:3000
 
 ## Run
 
-pnpm run dev        # watch mode
-pnpm run inspect     # test tools in MCP Inspector
-pnpm run typecheck   # type-check only
+pnpm run dev # watch mode
+pnpm run inspect # test tools in MCP Inspector
+pnpm run typecheck # type-check only
 
 ## Mock API (for local testing without the real backend)
 
-pnpm tsx src/mock/mock-api.ts
+pnpm exec tsx src/mock/mock-api.ts
 
 ## Tools
 
-| Tool | Description |
-|---|---|
-| get_todays_meds | List today's doses and their status |
-| get_due_doses | List pending doses due now |
-| confirm_dose | Find a pending dose by name/time and mark it taken |
-| add_appointment | Save a new appointment |
-| get_next_appointment | Return the next upcoming appointment |
-| get_daily_summary | Get the caregiver summary for a date (stub, pending Bedrock integration) |
+| Tool                 | Description                                                                           |
+| -------------------- | ------------------------------------------------------------------------------------- |
+| get_todays_meds      | List today's doses and their status                                                   |
+| get_due_doses        | List pending doses due now                                                            |
+| confirm_dose         | Find a medication by name or alias, match a pending or missed dose, and mark it taken |
+| add_appointment      | Save a new appointment                                                                |
+| get_next_appointment | Return the next upcoming appointment, or none if there isn't one                      |
+| get_daily_summary    | Get the caregiver summary for a date (stub, pending Bedrock integration)              |
 
 ## Structure
 
 src/
-  server.ts        entry point
-  tools/           one file per tool + index.ts registering them all
-  api/             fetch client + per-resource API calls
-  mock/            local fake data + fake HTTP API for offline testing
-  utils/           shared helpers (result wrapping, error wrapping, name/time matching)
-  types.ts         shared types (mirrors the team's shared/types.ts)
+server.ts entry point
+tools/ one file per tool + index.ts registering them all
+api/ fetch client + per-resource API calls (doses, appointments, medications)
+mock/ local fake data + fake HTTP API for offline testing
+utils/ shared helpers (result wrapping, error wrapping, name/time matching)
+types.ts shared types (mirrors the team's shared/types.ts)
+
+## Known pending work
+
+- API client currently expects raw JSON responses. Needs updating once the team confirms the `{ success, message, data }` response envelope shape used by the backend.
