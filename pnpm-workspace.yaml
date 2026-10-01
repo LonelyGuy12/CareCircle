@@ -2,6 +2,7 @@ packages:
     - 'backend'
     - 'web'
     - 'app'
+    - 'mcp-server'
 allowBuilds:
     argon2: true
     bcrypt: true
