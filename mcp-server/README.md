@@ -9,13 +9,13 @@ cp .env.example .env   # set API_BASE_URL if not localhost:3000
 
 ## Run
 
-npm run dev        # watch mode
-npm run inspect     # test tools in MCP Inspector
-npm run typecheck   # type-check only
+pnpm run dev        # watch mode
+pnpm run inspect     # test tools in MCP Inspector
+pnpm run typecheck   # type-check only
 
 ## Mock API (for local testing without the real backend)
 
-npx tsx src/mock/mock-api.ts
+pnpm tsx src/mock/mock-api.ts
 
 ## Tools
 
