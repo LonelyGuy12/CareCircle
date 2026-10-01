@@ -1,11 +1,11 @@
 import { Routes, Route } from 'react-router-dom';
-import Layout from './components/Layout.tsx';
-import Today from './pages/Today.tsx';
-import Medications from './pages/Medications.tsx';
-import Appointments from './pages/Appointments.tsx';
-import Summaries from './pages/Summaries.tsx';
-import Alerts from './pages/Alerts.tsx';
-import Profile from './pages/Profile.tsx';
+import Layout from './components/Layout';
+import Today from './pages/Today';
+import Medications from './pages/Medications';
+import Appointments from './pages/Appointments';
+import Summaries from './pages/Summaries';
+import Alerts from './pages/Alerts';
+import Profile from './pages/Profile';
 
 export default function App() {
     return (

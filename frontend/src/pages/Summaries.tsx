@@ -1,6 +1,6 @@
 import data from '../data/mock.json';
-import Card from '../components/Card.tsx';
-import type { MockData } from '../types/mock.ts';
+import Card from '../components/Card';
+import type { MockData } from '../types/mock';
 
 const typedData = data as MockData;
 
