@@ -1,7 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom';
-import { Alert } from '../types/mock.ts';
+import type { Alert, MockData } from '../types/mock';
 import data from '../data/mock.json';
-import type { MockData } from '../types/mock.ts';
 
 const typedData = data as MockData;
 

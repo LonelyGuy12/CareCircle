@@ -1,17 +1,20 @@
 import { Link } from 'react-router-dom';
 import data from '../data/mock.json';
-import Card from '../components/Card.tsx';
-import { formatTime, formatDate, statusStyle } from '../utils.ts';
-import type { MockData } from '../types/mock.ts';
+import Card from '../components/Card';
+import { formatTime, formatDate, statusStyle } from '../utils';
+import type { Medication, MockData } from '../types/mock';
 
 const typedData = data as MockData;
 
 export default function Today() {
-    const medById = Object.fromEntries(typedData.medications.map((m) => [m.id, m]));
+    const medById: Record<string, Medication> = Object.fromEntries(
+        typedData.medications.map((m) => [m.id, m]),
+    );
     const nextAppt = [...typedData.appointments].sort((a, b) =>
         a.dateTime.localeCompare(b.dateTime),
     )[0];
     const latestSummary = typedData.summaries[0];
+    if (!nextAppt || !latestSummary) return null;
 
     return (
         <div className="space-y-6">
@@ -20,6 +23,7 @@ export default function Today() {
                 <ul className="divide-y divide-slate-100">
                     {typedData.doseLogs.map((d) => {
                         const med = medById[d.medicationId];
+                        if (!med) return null;
                         const s = statusStyle[d.status];
                         return (
                             <li key={d.id} className="flex items-center justify-between py-3">
