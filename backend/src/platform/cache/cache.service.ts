@@ -1,7 +1,7 @@
 import { ConfigService } from '@platform/config';
 import { LoggerService } from '@platform/logger/logger.service';
 import { Redis as UpstashRedis } from '@upstash/redis';
-import { createClient } from 'redis';
+import { createClient, type RedisClientOptions } from 'redis';
 
 export class CacheService {
     private static instance: CacheService | null = null;
@@ -27,14 +27,10 @@ export class CacheService {
             return;
         }
 
-        const redisOptions = {
+        // NOTE: RESP/clientSideCache are not node-redis v4 options and were
+        // silently ignored; they are dropped here with zero runtime change.
+        const redisOptions: RedisClientOptions = {
             password: config.redis_password,
-            RESP: 3,
-            clientSideCache: {
-                ttl: 0,
-                maxEntries: 0,
-                evictPolicy: 'LRU',
-            },
         };
 
         if (config.redis_url) {
@@ -74,7 +70,6 @@ export class CacheService {
         if (!CacheService.instance) {
             CacheService.instance = new CacheService(config, logger);
         }
-        config;
         return CacheService.instance;
     }
 
