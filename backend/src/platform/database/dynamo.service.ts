@@ -1,4 +1,8 @@
-import { DynamoDBClient, ListTablesCommand } from '@aws-sdk/client-dynamodb';
+import {
+    DynamoDBClient,
+    type DynamoDBClientConfig,
+    ListTablesCommand,
+} from '@aws-sdk/client-dynamodb';
 import {
     DeleteCommand,
     DynamoDBDocumentClient,
@@ -26,7 +30,7 @@ export class DynamoDBService implements IDatabaseProvider {
     ) {
         this.tablePrefix = config.dynamodb_table_prefix || 'carecircle_';
 
-        const clientConfig = {
+        const clientConfig: DynamoDBClientConfig = {
             region: config.aws_region || 'us-east-1',
         };
 

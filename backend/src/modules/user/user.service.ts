@@ -16,9 +16,19 @@ export class UserService {
         private readonly mediaService?: any,
     ) {}
 
-    private stripSensitiveData(user) {
-        const { password, _count, ...safeUser } = user;
-        const flattenedUser = { ...safeUser };
+    private stripSensitiveData(user: {
+        password?: unknown;
+        _count?: {
+            followers: number;
+            following: number;
+            likes: number;
+            posts: number;
+            articles: number;
+        } | null;
+        [key: string]: unknown;
+    }): Record<string, unknown> {
+        const { password: _password, _count, ...safeUser } = user;
+        const flattenedUser: Record<string, unknown> = { ...safeUser };
         if (_count) {
             flattenedUser.followersCount = _count.followers;
             flattenedUser.followingCount = _count.following;
@@ -34,7 +44,7 @@ export class UserService {
         if (!user) {
             throw new NotFoundError('User');
         }
-        return this.stripSensitiveData(user) as IUser;
+        return this.stripSensitiveData(user) as unknown as IUser;
     }
 
     async getProfile(id: number, viewerId?: number): Promise<any> {

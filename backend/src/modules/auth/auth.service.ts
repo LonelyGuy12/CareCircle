@@ -9,6 +9,8 @@ import {
     RateLimitError,
 } from '@shared/json';
 import { generateAuthTokens, hashString, verifyHash, verifyToken } from '@shared/utils/auth';
+
+import type { LoginSchema, RegisterSchema } from './auth.validator';
 export class AuthService {
     constructor(
         private userRepository: UserRepository,
@@ -16,7 +18,7 @@ export class AuthService {
         private cache: CacheService,
     ) {}
 
-    async createUser(body): Promise<{ accessToken: string; refreshToken: string }> {
+    async createUser(body: RegisterSchema): Promise<{ accessToken: string; refreshToken: string }> {
         const { name, email, password, username, bio, link, avatar, banner, timezone } = body;
 
         const isUserExist =
@@ -57,15 +59,19 @@ export class AuthService {
         return { accessToken, refreshToken };
     }
 
-    async login(body): Promise<{
+    async login(body: LoginSchema): Promise<{
         twoFactorEnabled: boolean;
         authTokens: { accessToken: string; refreshToken: string };
     }> {
         const { email, password, username } = body;
 
+        // loginSchema guarantees email or username is present (routes validate
+        // before this runs); the final fallback keeps invalid input safe.
         const user = email
             ? await this.userRepository.findUserByEmail(email)
-            : await this.userRepository.findUserByUsername(username);
+            : username
+              ? await this.userRepository.findUserByUsername(username)
+              : undefined;
 
         if (!user) {
             throw new NotFoundError('User');
