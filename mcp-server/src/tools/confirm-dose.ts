@@ -1,10 +1,10 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 
-import { confirmDose,getDoses } from '../api/doses.js';
+import { confirmDose, getDoses } from '../api/doses.js';
 import { getMedications } from '../api/medications.js';
-import { findMatchingDoses,findMatchingMedications } from '../utils/match.js';
-import { asError,asText } from '../utils/result.js';
+import { findMatchingDoses, findMatchingMedications } from '../utils/match.js';
+import { asError, asFollowUp,asText } from '../utils/result.js';
 
 export function registerConfirmDose(server: McpServer) {
     server.registerTool(
@@ -46,7 +46,7 @@ export function registerConfirmDose(server: McpServer) {
                     const options = matches
                         .map((d) => `${d.medicationName} at ${d.scheduledAt.slice(11, 16)}`)
                         .join(', ');
-                    return asText(`Several doses match: ${options}. Ask the person which one.`);
+                    return asFollowUp(`Several doses match: ${options}. Which one did you mean?`);
                 }
 
                 return asText(await confirmDose(matches[0]!.id, 'alexa'));

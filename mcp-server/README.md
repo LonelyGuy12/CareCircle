@@ -30,6 +30,21 @@ pnpm exec tsx src/mock/mock-api.ts
 | get_next_appointment | Return the next upcoming appointment, or none if there isn't one                      |
 | get_daily_summary    | Get the caregiver summary for a date (stub, pending Bedrock integration)              |
 
+## Agent (Bedrock tool-calling)
+
+A minimal agent loop that turns natural speech into MCP tool calls, built in-process (no network hop between agent and tools):
+
+- `src/agent/bedrock-client.ts` — calls Bedrock and returns which tool(s) to call. **Currently mocked** with keyword matching (e.g. "took" → `confirm_dose`), pending shared Bedrock access/credentials from the team.
+- `src/agent/tool-runner.ts` — connects an MCP client to the server in-memory (via `InMemoryTransport`) and actually executes the chosen tool, returning its text result plus whether it needs a follow-up answer from the person.
+- `src/agent/agent.ts` — `runAgent(text)`: ties the above together and returns `{ text, needsFollowUp }`.
+
+Tools can now signal "this needs a follow-up" via `asFollowUp()` in `utils/result.ts` (used by `confirm_dose` when multiple doses match). `get_due_doses` also returns a friendly "No doses are due right now" message instead of an empty array.
+
+Test the full loop:
+
+pnpm exec tsx src/mock/mock-api.ts # terminal 1
+pnpm exec tsx src/scripts/try-agent.ts # terminal 2
+
 ## Structure
 
 src/
