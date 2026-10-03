@@ -1,1 +1,68 @@
-﻿# CareCircle
+# CareCircle
+
+CareCircle helps family caregivers keep track of an older relative's medications and appointments. Caregivers get a dashboard with today's doses, adherence, alerts and AI-written daily summaries. The person being cared for can confirm doses by voice, and an AI agent turns natural speech into actions.
+
+## Features
+
+- **Caregiver dashboard:** dose timeline with "Mark taken", weekly adherence chart, next appointment and unread alerts
+- **Medications and appointments:** add and edit with validated forms
+- **Alerts:** missed-dose alerts with read tracking
+- **Daily summaries:** AI-generated nightly summary of the day
+- **Caregiver Q&A:** ask questions such as "How was Mom's week?"
+- **Voice flow:** speech is routed to an AI agent that calls MCP tools to confirm doses and update records
+- **Guardrails:** Amazon Bedrock Guardrails block medical advice in summaries, Q&A and agent replies
+
+## Tech stack
+
+| Area       | Technology                                        |
+| ---------- | ------------------------------------------------- |
+| Language   | TypeScript, Node 24                               |
+| Frontend   | React, Vite, Tailwind CSS, React Router, Recharts |
+| Backend    | Express 5, Zod                                    |
+| Database   | Amazon DynamoDB                                   |
+| AI         | Amazon Bedrock (Converse API, Guardrails), MCP    |
+| Deployment | AWS Lambda, API Gateway, Amplify, EventBridge     |
+| Tooling    | pnpm workspace, ESLint, Prettier, Husky           |
+
+## Repository layout
+
+```
+backend/              Express API, DynamoDB, scheduler
+frontend/             React + Vite caregiver dashboard
+scripts/              Repository tooling
+tsconfig.base.json    Shared TypeScript configuration
+```
+
+## Getting started
+
+**Prerequisites:** Node 24 (see `.nvmrc`) and pnpm. This repository requires pnpm; npm, yarn and bun are blocked.
+
+```bash
+npm install -g pnpm
+pnpm install
+```
+
+**Run the frontend**
+
+```bash
+cd frontend
+pnpm dev
+```
+
+The frontend currently runs on mock data and will move to the live API once the endpoints are ready.
+
+**Run the backend**
+
+```bash
+cd backend
+pnpm dev
+```
+
+## Scripts
+
+| Command          | Description                         |
+| ---------------- | ----------------------------------- |
+| `pnpm lint`      | Run ESLint                          |
+| `pnpm format`    | Format with Prettier                |
+| `pnpm typecheck` | Type check                          |
+| `pnpm build`     | Production build (inside a package) |
