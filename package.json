@@ -15,6 +15,7 @@
         "lint": "eslint .",
         "lint:fix": "eslint --fix .",
         "typecheck": "pnpm --filter backend run typecheck",
+        "test": "pnpm --filter backend run test",
         "prepare": "husky"
     },
     "lint-staged": {

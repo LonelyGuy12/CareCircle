@@ -29,6 +29,7 @@ CareCircle helps family caregivers keep track of an older relative's medications
 ```
 backend/              Express API, DynamoDB, scheduler
 frontend/             React + Vite caregiver dashboard
+mcp-server/           MCP tools and Bedrock agent loop
 scripts/              Repository tooling
 tsconfig.base.json    Shared TypeScript configuration
 ```
@@ -40,23 +41,17 @@ tsconfig.base.json    Shared TypeScript configuration
 ```bash
 npm install -g pnpm
 pnpm install
-```
-
-**Run the frontend**
-
-```bash
-cd frontend
-pnpm dev
+pnpm --dir frontend dev   # dashboard on mock data (http://localhost:5173)
+pnpm --dir backend dev    # API (needs backend/.env — see docs/setup.md)
+pnpm --dir mcp-server dev # MCP tools + agent loop
 ```
 
 The frontend currently runs on mock data and will move to the live API once the endpoints are ready.
 
-**Run the backend**
-
-```bash
-cd backend
-pnpm dev
-```
+Full environment, DynamoDB and per-package instructions:
+see [docs/setup.md](docs/setup.md). Design docs live in
+[docs/wireframes.md](docs/wireframes.md) and
+[docs/accessibility.md](docs/accessibility.md).
 
 ## Scripts
 
@@ -65,4 +60,15 @@ pnpm dev
 | `pnpm lint`      | Run ESLint                          |
 | `pnpm format`    | Format with Prettier                |
 | `pnpm typecheck` | Type check                          |
+| `pnpm test`      | Run backend test suite              |
 | `pnpm build`     | Production build (inside a package) |
+
+## Contributing
+
+```
+feature branch → test → main
+```
+
+- Work on your own branch, open PRs into `test`, never push to `main`.
+- TypeScript only (`.ts`/`.tsx`, strict, no `any`). Husky enforces
+  Conventional Commits and runs lint-staged — do not use `--no-verify`.
