@@ -13,7 +13,8 @@ export function registerGetDueDoses(server: McpServer) {
         },
         async () => {
             try {
-                return asText(await getDueDoses());
+                const due = await getDueDoses();
+                return due.length === 0 ? asText('No doses are due right now.') : asText(due);
             } catch (err) {
                 return asError(err);
             }

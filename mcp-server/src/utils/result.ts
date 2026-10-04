@@ -10,6 +10,12 @@ export const asText = (data: unknown) => ({
     ],
 });
 
+// Same as asText, but tagged so the agent knows this needs a reply from the person
+export const asFollowUp = (question: string) => ({
+    content: [{ type: 'text' as const, text: question }],
+    _meta: { needsFollowUp: true },
+});
+
 // Turns any error into a readable MCP error result
 export const asError = (err: unknown) => ({
     isError: true as const,
