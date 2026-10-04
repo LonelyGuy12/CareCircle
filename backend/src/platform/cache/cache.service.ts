@@ -1,7 +1,7 @@
 import { ConfigService } from '@platform/config';
 import { LoggerService } from '@platform/logger/logger.service';
 import { Redis as UpstashRedis } from '@upstash/redis';
-import { createClient } from 'redis';
+import { createClient, type RedisClientOptions } from 'redis';
 
 export class CacheService {
     private static instance: CacheService | null = null;
@@ -27,14 +27,8 @@ export class CacheService {
             return;
         }
 
-        const redisOptions = {
+        const redisOptions: RedisClientOptions = {
             password: config.redis_password,
-            RESP: 3,
-            clientSideCache: {
-                ttl: 0,
-                maxEntries: 0,
-                evictPolicy: 'LRU',
-            },
         };
 
         if (config.redis_url) {
@@ -59,7 +53,7 @@ export class CacheService {
             this.logger.info('Redis connected');
         });
 
-        (this.client as ReturnType<typeof createClient>).on('error', (err: any) => {
+        (this.client as ReturnType<typeof createClient>).on('error', (err: unknown) => {
             this.ready = false;
             this.logger.error('Redis error', err);
         });
@@ -74,7 +68,6 @@ export class CacheService {
         if (!CacheService.instance) {
             CacheService.instance = new CacheService(config, logger);
         }
-        config;
         return CacheService.instance;
     }
 

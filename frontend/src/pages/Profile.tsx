@@ -1,5 +1,5 @@
-import { useCareCircle } from '../state/care-circle';
 import { Badge, Card, CardContent, CardHeader, CardTitle } from '../components/ui';
+import { useCareCircle } from '../state/care-circle';
 
 export default function Profile() {
     const { careRecipient, caregiver } = useCareCircle();

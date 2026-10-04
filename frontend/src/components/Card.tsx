@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
-import { Card as UICard, CardContent, CardHeader, CardTitle } from './ui/card';
+
 import { cn } from '../lib/cn';
+import { Card as UICard, CardContent, CardHeader, CardTitle } from './ui/card';
 
 interface CardProps {
     title?: string;

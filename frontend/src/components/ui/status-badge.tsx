@@ -1,6 +1,7 @@
 import type { SVGProps } from 'react';
+
+import { type StatusKey, statusMeta } from '../../theme/tokens';
 import { Badge } from './badge';
-import { statusMeta, type StatusKey } from '../../theme/tokens';
 
 function CheckIcon(props: SVGProps<SVGSVGElement>) {
     return (

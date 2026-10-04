@@ -32,13 +32,14 @@ export class AuthMiddleware {
             const payload = this.authService.verifyAccessToken(token);
             req.user = payload;
             next();
-        } catch (error: any) {
-            this.logger.error('Session validation failed', { error: error.message });
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : String(error);
+            this.logger.error('Session validation failed', { error: message });
             return next(new AuthenticationError('Invalid or expired session'));
         }
     };
 
-    optionalUserSession = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    optionalUserSession = async (req: AuthenticatedRequest, _res: Response, next: NextFunction) => {
         const authHeader = req.headers.authorization;
         const accessToken = req.cookies?.access_token;
 
@@ -54,7 +55,7 @@ export class AuthMiddleware {
             try {
                 const payload = this.authService.verifyAccessToken(token);
                 req.user = payload;
-            } catch (error: any) {
+            } catch {
                 this.logger.warn(
                     'Optional session validation failed, continuing without user context',
                 );

@@ -1,7 +1,7 @@
 import { CacheService } from '@platform/cache';
 import { AuthenticatedRequest } from '@platform/http/types';
-import { ApiResponse, MediaError } from '@shared/json';
-import { NextFunction, Request, Response } from 'express';
+import { ApiResponse } from '@shared/json';
+import { NextFunction, Response } from 'express';
 
 import { UserService } from './user.service';
 

@@ -11,11 +11,11 @@ const send = (res: ServerResponse, status: number, body: unknown) => {
     res.end(JSON.stringify(body));
 };
 
-const readBody = async (req: IncomingMessage): Promise<any> => {
+const readBody = async (req: IncomingMessage): Promise<Record<string, unknown> | null> => {
     let raw = '';
     for await (const chunk of req) raw += chunk;
     try {
-        return raw ? JSON.parse(raw) : {};
+        return raw ? (JSON.parse(raw) as Record<string, unknown>) : {};
     } catch {
         return null;
     }
@@ -37,7 +37,8 @@ createServer(async (req, res) => {
     const doseMatch = path.match(/^\/api\/doses\/([^/]+)\/confirm$/);
     if (req.method === 'POST' && doseMatch) {
         const body = await readBody(req);
-        if (!body || !['alexa', 'dashboard'].includes(body.via))
+        const via = typeof body?.via === 'string' ? body.via : '';
+        if (via !== 'alexa' && via !== 'dashboard')
             return send(res, 400, {
                 error: { code: 'VALIDATION_ERROR', message: 'Some fields are invalid.' },
             });
@@ -48,7 +49,7 @@ createServer(async (req, res) => {
 
         dose.status = 'taken';
         dose.confirmedAt = new Date().toISOString().slice(0, 19);
-        dose.confirmedVia = body.via;
+        dose.confirmedVia = via;
         return send(res, 200, dose);
     }
 
@@ -61,18 +62,20 @@ createServer(async (req, res) => {
 
     if (req.method === 'POST' && path === '/api/appointments') {
         const body = await readBody(req);
-        if (!body || !body.title || !body.dateTime)
+        const title = typeof body?.title === 'string' ? body.title : undefined;
+        const dateTime = typeof body?.dateTime === 'string' ? body.dateTime : undefined;
+        if (!title || !dateTime)
             return send(res, 400, {
                 error: { code: 'VALIDATION_ERROR', message: 'Some fields are invalid.' },
             });
 
         const appt: Appointment = {
             id: `appt_${Date.now()}`,
-            title: body.title,
-            dateTime: body.dateTime,
-            doctor: body.doctor ?? '',
-            location: body.location ?? '',
-            notes: body.notes ?? '',
+            title,
+            dateTime,
+            doctor: typeof body?.doctor === 'string' ? body.doctor : '',
+            location: typeof body?.location === 'string' ? body.location : '',
+            notes: typeof body?.notes === 'string' ? body.notes : '',
         };
         appointments.push(appt);
         return send(res, 200, appt);

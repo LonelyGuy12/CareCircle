@@ -1,13 +1,14 @@
-import { Routes, Route } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
+
 import Layout from './components/Layout';
-import Today from './pages/Today';
-import Medications from './pages/Medications';
-import Appointments from './pages/Appointments';
-import Summaries from './pages/Summaries';
-import Alerts from './pages/Alerts';
-import Profile from './pages/Profile';
-import { CareCircleProvider } from './state/care-circle';
 import { ToastProvider } from './components/ui';
+import Alerts from './pages/Alerts';
+import Appointments from './pages/Appointments';
+import Medications from './pages/Medications';
+import Profile from './pages/Profile';
+import Summaries from './pages/Summaries';
+import Today from './pages/Today';
+import { CareCircleProvider } from './state/care-circle';
 
 export default function App() {
     return (
