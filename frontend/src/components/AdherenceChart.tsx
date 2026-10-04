@@ -1,6 +1,7 @@
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+
 import type { WeeklyAdherence } from '../types/mock';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 
 export function AdherenceChart({ data }: { data: WeeklyAdherence[] }) {
     const average = Math.round(

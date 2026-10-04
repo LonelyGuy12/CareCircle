@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { useCareCircle } from '../state/care-circle';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Button } from './ui/button';
-import { formatDate, formatTime } from '../utils';
+import { type FormEvent, useEffect, useRef, useState } from 'react';
+
 import { cn } from '../lib/cn';
+import { useCareCircle } from '../state/care-circle';
+import { formatDate, formatTime } from '../utils';
+import { Button } from './ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 
 interface ChatMessage {
     id: number;
