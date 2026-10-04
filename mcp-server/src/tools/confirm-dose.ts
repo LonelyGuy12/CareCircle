@@ -1,10 +1,10 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 
-import { confirmDose,getDoses } from '../api/doses.js';
+import { confirmDose, getDoses } from '../api/doses.js';
 import { getMedications } from '../api/medications.js';
-import { findMatchingDoses,findMatchingMedications } from '../utils/match.js';
-import { asError,asText } from '../utils/result.js';
+import { findMatchingDoses, findMatchingMedications } from '../utils/match.js';
+import { asError, asText } from '../utils/result.js';
 
 export function registerConfirmDose(server: McpServer) {
     server.registerTool(
