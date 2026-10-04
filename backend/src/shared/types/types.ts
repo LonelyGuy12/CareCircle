@@ -1,21 +1,31 @@
-import { RegisterSchema } from '@modules/auth/auth.validator';
-
 /// USER SCHEMA
 export interface IUser {
     id: number;
     name: string;
     email: string;
     username: string;
+    password?: string;
+    refreshToken?: string | null;
+    twoFactorEnabled?: boolean;
     bio?: string | null;
     link?: string | null;
     avatar?: string | null;
     banner?: string | null;
+    timezone?: string | null;
     isVerified: boolean;
     isUserBanned: boolean;
-    followersCount: number;
-    followingCount: number;
-    createdAt: Date;
-    updatedAt: Date;
+    followersCount?: number;
+    followingCount?: number;
+    createdAt: string | Date;
+    updatedAt: string | Date;
+    _count?: {
+        followers: number;
+        following: number;
+        likes: number;
+        posts: number;
+        articles: number;
+    };
+    [key: string]: unknown;
 }
 
 export type IUpdateUserProfile = Partial<Omit<IUser, 'id' | 'email' | 'createdAt' | 'updatedAt'>>;

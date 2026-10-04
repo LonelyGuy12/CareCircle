@@ -10,7 +10,7 @@ export type ValidationTarget = 'json' | 'body' | 'query' | 'param' | 'params' | 
 export const validate = (target: ValidationTarget, schema: ZodSchema) => {
     return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            let dataToValidate: any;
+            let dataToValidate: unknown;
             if (target === 'json' || target === 'body' || target === 'form') {
                 dataToValidate = req.body || {};
             } else if (target === 'query') {
@@ -24,9 +24,9 @@ export const validate = (target: ValidationTarget, schema: ZodSchema) => {
             if (target === 'json' || target === 'body' || target === 'form') {
                 req.body = parsed;
             } else if (target === 'query') {
-                req.query = parsed as any;
+                req.query = parsed as typeof req.query;
             } else if (target === 'param' || target === 'params') {
-                req.params = parsed as any;
+                req.params = parsed as typeof req.params;
             }
 
             next();

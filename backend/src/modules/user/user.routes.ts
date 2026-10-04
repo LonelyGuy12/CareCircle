@@ -10,8 +10,6 @@ import {
     changePasswordSchema,
     changeTwoFactorSchema,
     deleteUserSchema,
-    paginationQuerySchema,
-    userIdParamSchema,
     userUpdateSchema,
 } from './user.validator';
 

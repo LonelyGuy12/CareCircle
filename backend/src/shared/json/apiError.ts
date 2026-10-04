@@ -1,12 +1,10 @@
-import { HttpStatusCode } from '@shared/constants/httpStatus';
-
 export class AppError extends Error {
     constructor(
         public readonly statusCode: number,
         public readonly message: string,
         public readonly isOperational = true,
         public readonly code?: string,
-        public readonly details?: any,
+        public readonly details?: unknown,
     ) {
         super(message);
         this.name = this.constructor.name;
@@ -95,7 +93,7 @@ export class UnsupportedMediaTypeError extends AppError {
 }
 
 export class MediaError extends AppError {
-    constructor(message: string, details?: any) {
+    constructor(message: string, details?: unknown) {
         super(400, message, true, 'MEDIA_ERROR', details);
     }
 }

@@ -1,7 +1,26 @@
+import {
+    AppointmentController,
+    AppointmentRepository,
+    AppointmentService,
+    createAppointmentRoutes,
+} from '@modules/appointment';
 import { AuthController } from '@modules/auth/auth.controller';
 import { createAuthRoutes } from '@modules/auth/auth.routes';
 import { AuthService } from '@modules/auth/auth.service';
+import { createDoseRoutes, DoseController, DoseRepository, DoseService } from '@modules/dose';
 import { createHealthRoutes, HealthController } from '@modules/health';
+import {
+    createMedicationRoutes,
+    MedicationController,
+    MedicationRepository,
+    MedicationService,
+} from '@modules/medication';
+import {
+    createSummaryRoutes,
+    SummaryController,
+    SummaryRepository,
+    SummaryService,
+} from '@modules/summary';
 import { createUserRoutes, UserController, UserService } from '@modules/user';
 import { UserRepository } from '@modules/user/user.repository';
 import { CacheService } from '@platform/cache';
@@ -120,9 +139,44 @@ export class Application {
 
         const authMiddleware = new AuthMiddleware(this.config, this.logger, authService);
 
+        // Core Healthcare Modules
+        const medicationRepository = new MedicationRepository(this.database);
+        const medicationService = new MedicationService(medicationRepository, this.logger);
+        const medicationController = new MedicationController(medicationService);
+
+        const appointmentRepository = new AppointmentRepository(this.database);
+        const appointmentService = new AppointmentService(appointmentRepository, this.logger);
+        const appointmentController = new AppointmentController(appointmentService);
+
+        const doseRepository = new DoseRepository(this.database);
+        const doseService = new DoseService(doseRepository, medicationRepository, this.logger);
+        const doseController = new DoseController(doseService);
+
+        const summaryRepository = new SummaryRepository(this.database);
+        const summaryService = new SummaryService(summaryRepository, this.logger);
+        const summaryController = new SummaryController(summaryService);
+
+        // Base routes
         mainRouter.use('/health', createHealthRoutes(healthController));
         mainRouter.use('/auth', createAuthRoutes(authController, authMiddleware));
         mainRouter.use('/users', createUserRoutes(userController, authMiddleware));
+
+        // Healthcare routes (both /api/medications and /medications for full compatibility)
+        const medRoutes = createMedicationRoutes(medicationController);
+        mainRouter.use('/medications', medRoutes);
+        mainRouter.use('/api/medications', medRoutes);
+
+        const apptRoutes = createAppointmentRoutes(appointmentController);
+        mainRouter.use('/appointments', apptRoutes);
+        mainRouter.use('/api/appointments', apptRoutes);
+
+        const doseRoutes = createDoseRoutes(doseController);
+        mainRouter.use('/doses', doseRoutes);
+        mainRouter.use('/api/doses', doseRoutes);
+
+        const summaryRoutes = createSummaryRoutes(summaryController);
+        mainRouter.use('/summaries', summaryRoutes);
+        mainRouter.use('/api/summaries', summaryRoutes);
 
         this.httpServer.registerRoutes('/', mainRouter);
         this.logger.info('All routes configured.');

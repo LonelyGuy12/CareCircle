@@ -288,7 +288,7 @@ export class ConfigService {
     }
 
     get database_type(): 'dynamodb' | 'postgres' {
-        return (this.config.DATABASE_TYPE as any) || 'dynamodb';
+        return this.config.DATABASE_TYPE || 'dynamodb';
     }
 }
 
