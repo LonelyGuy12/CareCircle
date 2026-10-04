@@ -1,5 +1,6 @@
 packages:
     - 'backend'
+    - 'frontend'
     - 'web'
     - 'app'
     - 'mcp-server'

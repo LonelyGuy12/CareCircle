@@ -18,7 +18,7 @@ export default tseslint.config(
     // ── TypeScript files ──
     ...tseslint.configs.recommended,
     {
-        files: ['**/*.ts'],
+        files: ['**/*.ts', '**/*.tsx'],
 
         plugins: {
             'simple-import-sort': simpleImportSort,
