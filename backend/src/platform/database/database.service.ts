@@ -42,27 +42,31 @@ export class DatabaseService implements IDatabaseProvider {
         return this.provider.healthCheck();
     }
 
-    async getItem<T = any>(table: string, key: Record<string, any>): Promise<T | null> {
+    async getItem<T = unknown>(table: string, key: Record<string, unknown>): Promise<T | null> {
         return this.provider.getItem<T>(table, key);
     }
 
-    async putItem<T = any>(table: string, item: T): Promise<T> {
+    async putItem<T = unknown>(table: string, item: T): Promise<T> {
         return this.provider.putItem<T>(table, item);
     }
 
-    async updateItem(
+    async updateItem<T = Record<string, unknown>>(
         table: string,
-        key: Record<string, any>,
-        updateData: Record<string, any>,
-    ): Promise<any> {
-        return this.provider.updateItem(table, key, updateData);
+        key: Record<string, unknown>,
+        updateData: Record<string, unknown> | object,
+    ): Promise<T | null> {
+        return this.provider.updateItem<T>(table, key, updateData);
     }
 
-    async deleteItem(table: string, key: Record<string, any>): Promise<boolean> {
+    async deleteItem(table: string, key: Record<string, unknown>): Promise<boolean> {
         return this.provider.deleteItem(table, key);
     }
 
-    async query<T = any>(table: string, params?: Record<string, any>): Promise<T[]> {
+    async query<T = unknown>(table: string, params?: Record<string, unknown>): Promise<T[]> {
         return this.provider.query<T>(table, params);
+    }
+
+    async scan<T = unknown>(table: string, params?: Record<string, unknown>): Promise<T[]> {
+        return this.provider.scan<T>(table, params);
     }
 }

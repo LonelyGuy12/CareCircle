@@ -35,7 +35,7 @@ export const registerSchema = z
         message: 'Username must be in lowercase',
         path: ['username'],
     })
-    .transform(({ confirmPassword, email, username, ...rest }) => {
+    .transform(({ confirmPassword: _confirmPassword, email, username, ...rest }) => {
         return {
             ...rest,
             email: email.toLowerCase(),
@@ -101,7 +101,7 @@ export const resetPasswordSchema = z
         message: 'Passwords do not match',
         path: ['confirmPassword'],
     })
-    .transform(({ confirmPassword, ...data }) => {
+    .transform(({ confirmPassword: _confirmPassword, ...data }) => {
         return { ...data, otp: data.otp.toLowerCase() };
     });
 

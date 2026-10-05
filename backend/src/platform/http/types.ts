@@ -9,9 +9,9 @@ export type ExpressHandler = (
     req: Request,
     res: Response,
     next: NextFunction,
-) => Promise<any> | any;
+) => Promise<void | unknown> | void | unknown;
 export type AuthenticatedExpressHandler = (
     req: AuthenticatedRequest,
     res: Response,
     next: NextFunction,
-) => Promise<any> | any;
+) => Promise<void | unknown> | void | unknown;

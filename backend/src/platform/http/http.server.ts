@@ -105,7 +105,7 @@ export class HttpServer {
     }
 
     private setupErrorHandler(): void {
-        this.app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+        this.app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
             if (err instanceof AppError) {
                 this.logger.warn(`${err.name}: ${err.message}`, {
                     path: req.path,
@@ -117,7 +117,10 @@ export class HttpServer {
                 return res.status(err.statusCode).json(err.toJSON());
             }
 
-            this.logger.error(`Critical Error: ${err.message || err}`, {
+            const errorMessage = err instanceof Error ? err.message : String(err);
+            const errorStack = err instanceof Error ? err.stack : undefined;
+
+            this.logger.error(`Critical Error: ${errorMessage}`, {
                 path: req.path,
                 method: req.method,
                 error: err,
@@ -127,10 +130,10 @@ export class HttpServer {
                 success: false,
                 message: this.config.isProduction
                     ? 'An unexpected error occurred'
-                    : err.message || 'Internal Server Error',
+                    : errorMessage || 'Internal Server Error',
                 error: {
                     code: 'INTERNAL_SERVER_ERROR',
-                    details: this.config.isProduction ? undefined : { stack: err.stack },
+                    details: this.config.isProduction ? undefined : { stack: errorStack },
                 },
             });
         });

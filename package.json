@@ -14,7 +14,7 @@
         "format:check": "prettier --check .",
         "lint": "eslint .",
         "lint:fix": "eslint --fix .",
-        "typecheck": "pnpm --filter backend run typecheck",
+        "typecheck": "pnpm -r run typecheck",
         "prepare": "husky"
     },
     "lint-staged": {
