@@ -55,7 +55,7 @@ export class CacheService {
             this.logger.info('Redis connected');
         });
 
-        (this.client as ReturnType<typeof createClient>).on('error', (err: any) => {
+        (this.client as ReturnType<typeof createClient>).on('error', (err: unknown) => {
             this.ready = false;
             this.logger.error('Redis error', err);
         });

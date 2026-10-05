@@ -1,7 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 
 import { getDueDoses } from '../api/doses.js';
-import { asError,asText } from '../utils/result.js';
+import { asError, asText } from '../utils/result.js';
 
 export function registerGetDueDoses(server: McpServer) {
     server.registerTool(

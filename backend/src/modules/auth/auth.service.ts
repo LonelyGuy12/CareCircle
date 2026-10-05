@@ -11,6 +11,7 @@ import {
 import { generateAuthTokens, hashString, verifyHash, verifyToken } from '@shared/utils/auth';
 
 import type { LoginSchema, RegisterSchema } from './auth.validator';
+
 export class AuthService {
     constructor(
         private userRepository: UserRepository,
@@ -71,7 +72,7 @@ export class AuthService {
             ? await this.userRepository.findUserByEmail(email)
             : username
               ? await this.userRepository.findUserByUsername(username)
-              : undefined;
+              : null;
 
         if (!user) {
             throw new NotFoundError('User');
@@ -101,7 +102,7 @@ export class AuthService {
         this.logger.info('User logged in successfully', { userId: user.id });
 
         return {
-            twoFactorEnabled: user.twoFactorEnabled,
+            twoFactorEnabled: !!user.twoFactorEnabled,
             authTokens: { accessToken, refreshToken },
         };
     }

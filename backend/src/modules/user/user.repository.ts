@@ -1,5 +1,5 @@
 import { DatabaseService } from '@platform/database';
-import { IUpdateUserProfile } from '@shared/types';
+import { IUpdateUserProfile, IUser } from '@shared/types';
 
 import { RegisterSchema } from '../auth/auth.validator';
 
@@ -52,17 +52,27 @@ export class UserRepository {
         return following.length;
     }
 
-    async getFollowers(userId: number): Promise<any[]> {
-        const follows = await this.db.query(TABLES.FOLLOWS, {
-            IndexName: 'followingId-index',
-            KeyConditionExpression: 'followingId = :uid',
-            ExpressionAttributeValues: { ':uid': userId },
-        });
+    async getFollowers(userId: number): Promise<Record<string, unknown>[]> {
+        const follows = await this.db.query<{ followerId: number; followingId: number }>(
+            TABLES.FOLLOWS,
+            {
+                IndexName: 'followingId-index',
+                KeyConditionExpression: 'followingId = :uid',
+                ExpressionAttributeValues: { ':uid': userId },
+            },
+        );
 
         // Enrich with follower user data
         const enriched = await Promise.all(
             follows.map(async (f) => {
-                const follower = await this.db.getItem(TABLES.USERS, { id: f.followerId });
+                const follower = await this.db.getItem<{
+                    id: number;
+                    name: string;
+                    username: string;
+                    avatar?: string | null;
+                    bio?: string | null;
+                    isVerified: boolean;
+                }>(TABLES.USERS, { id: f.followerId });
                 return {
                     ...f,
                     follower: follower
@@ -81,16 +91,26 @@ export class UserRepository {
         return enriched.filter((f) => f.follower);
     }
 
-    async getFollowing(userId: number): Promise<any[]> {
-        const follows = await this.db.query(TABLES.FOLLOWS, {
-            KeyConditionExpression: 'followerId = :uid',
-            ExpressionAttributeValues: { ':uid': userId },
-        });
+    async getFollowing(userId: number): Promise<Record<string, unknown>[]> {
+        const follows = await this.db.query<{ followerId: number; followingId: number }>(
+            TABLES.FOLLOWS,
+            {
+                KeyConditionExpression: 'followerId = :uid',
+                ExpressionAttributeValues: { ':uid': userId },
+            },
+        );
 
         // Enrich with following user data
         const enriched = await Promise.all(
             follows.map(async (f) => {
-                const following = await this.db.getItem(TABLES.USERS, { id: f.followingId });
+                const following = await this.db.getItem<{
+                    id: number;
+                    name: string;
+                    username: string;
+                    avatar?: string | null;
+                    bio?: string | null;
+                    isVerified: boolean;
+                }>(TABLES.USERS, { id: f.followingId });
                 return {
                     ...f,
                     following: following
@@ -111,35 +131,35 @@ export class UserRepository {
 
     // ────────────────────────── User CRUD ──────────────────────────
 
-    async findUserById(id: number): Promise<any | null> {
-        const user = await this.db.getItem(TABLES.USERS, { id });
+    async findUserById(id: number): Promise<IUser | null> {
+        const user = await this.db.getItem<IUser>(TABLES.USERS, { id });
         if (!user) return null;
         return this.enrichUserWithCounts(user);
     }
 
-    async findUserByEmail(email: string): Promise<any | null> {
-        const results = await this.db.query(TABLES.USERS, {
+    async findUserByEmail(email: string): Promise<IUser | null> {
+        const results = await this.db.query<IUser>(TABLES.USERS, {
             IndexName: 'email-index',
             KeyConditionExpression: 'email = :email',
             ExpressionAttributeValues: { ':email': email },
         });
-        if (results.length === 0) return null;
+        if (results.length === 0 || !results[0]) return null;
         return this.enrichUserWithCounts(results[0]);
     }
 
-    async findUserByUsername(username: string): Promise<any | null> {
-        const results = await this.db.query(TABLES.USERS, {
+    async findUserByUsername(username: string): Promise<IUser | null> {
+        const results = await this.db.query<IUser>(TABLES.USERS, {
             IndexName: 'username-index',
             KeyConditionExpression: 'username = :username',
             ExpressionAttributeValues: { ':username': username },
         });
-        if (results.length === 0) return null;
+        if (results.length === 0 || !results[0]) return null;
         return this.enrichUserWithCounts(results[0]);
     }
 
-    async createUser(data: RegisterSchema): Promise<any> {
+    async createUser(data: RegisterSchema): Promise<IUser> {
         const now = new Date().toISOString();
-        const user = {
+        const user: IUser = {
             id: Date.now(), // Auto-generated ID
             ...data,
             isVerified: false,
@@ -149,17 +169,20 @@ export class UserRepository {
             createdAt: now,
             updatedAt: now,
         };
-        await this.db.putItem(TABLES.USERS, user);
+        await this.db.putItem<IUser>(TABLES.USERS, user);
         return this.enrichUserWithCounts(user);
     }
 
-    async updateUserProfile(id: number, profile: IUpdateUserProfile): Promise<any> {
+    async updateUserProfile(id: number, profile: IUpdateUserProfile): Promise<IUser> {
         const updateData = { ...profile, updatedAt: new Date().toISOString() };
-        const updated = await this.db.updateItem(TABLES.USERS, { id }, updateData);
+        const updated = await this.db.updateItem<IUser>(TABLES.USERS, { id }, updateData);
+        if (!updated) {
+            throw new Error(`Failed to update user with id ${id}`);
+        }
         return this.enrichUserWithCounts(updated);
     }
 
-    async updateUserEmail(id: number, email: string): Promise<any> {
+    async updateUserEmail(id: number, email: string): Promise<Record<string, unknown> | null> {
         return this.db.updateItem(
             TABLES.USERS,
             { id },
@@ -170,7 +193,7 @@ export class UserRepository {
         );
     }
 
-    async updatePassword(id: number, password: string): Promise<any> {
+    async updatePassword(id: number, password: string): Promise<Record<string, unknown> | null> {
         return this.db.updateItem(
             TABLES.USERS,
             { id },
@@ -181,7 +204,10 @@ export class UserRepository {
         );
     }
 
-    async updateRefreshToken(id: number, refreshToken: string | null): Promise<any> {
+    async updateRefreshToken(
+        id: number,
+        refreshToken: string | null,
+    ): Promise<Record<string, unknown> | null> {
         return this.db.updateItem(
             TABLES.USERS,
             { id },
@@ -192,7 +218,10 @@ export class UserRepository {
         );
     }
 
-    async updateTwoFactorEnabled(id: number, twoFactorEnabled: boolean): Promise<any> {
+    async updateTwoFactorEnabled(
+        id: number,
+        twoFactorEnabled: boolean,
+    ): Promise<Record<string, unknown> | null> {
         return this.db.updateItem(
             TABLES.USERS,
             { id },
@@ -203,15 +232,15 @@ export class UserRepository {
         );
     }
 
-    async deleteUser(id: number): Promise<any> {
-        const user = await this.db.getItem(TABLES.USERS, { id });
+    async deleteUser(id: number): Promise<IUser | null> {
+        const user = await this.db.getItem<IUser>(TABLES.USERS, { id });
         await this.db.deleteItem(TABLES.USERS, { id });
         return user;
     }
 
     // ────────────────────────── Bookmarks ──────────────────────────
 
-    async getBookmarks(userId: number): Promise<any[]> {
+    async getBookmarks(userId: number): Promise<Record<string, unknown>[]> {
         return this.db.query(TABLES.BOOKMARKS, {
             KeyConditionExpression: 'userId = :uid',
             ExpressionAttributeValues: { ':uid': userId },
@@ -225,8 +254,8 @@ export class UserRepository {
         limit: number,
         cursor?: number,
         _currentUserId?: number,
-    ): Promise<any[]> {
-        const params: Record<string, any> = {
+    ): Promise<Record<string, unknown>[]> {
+        const params: Record<string, unknown> = {
             KeyConditionExpression: 'userId = :uid',
             ExpressionAttributeValues: { ':uid': userId },
             Limit: limit,
@@ -245,10 +274,11 @@ export class UserRepository {
      * Enrich a raw user record with follower/following/post/like/article counts.
      * Mimics the old Prisma `_count` include behaviour.
      */
-    private async enrichUserWithCounts(user: any): Promise<any> {
+    private async enrichUserWithCounts(user: IUser): Promise<IUser> {
+        const userId = typeof user.id === 'number' ? user.id : Number(user.id);
         const [followersCount, followingCount] = await Promise.all([
-            this.getFollowersCount(user.id),
-            this.getFollowingCount(user.id),
+            this.getFollowersCount(userId),
+            this.getFollowingCount(userId),
         ]);
 
         return {

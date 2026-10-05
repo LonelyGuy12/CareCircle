@@ -14,7 +14,7 @@
         "format:check": "prettier --check .",
         "lint": "eslint .",
         "lint:fix": "eslint --fix .",
-        "typecheck": "pnpm --filter backend run typecheck",
+        "typecheck": "pnpm -r run typecheck",
         "test": "pnpm --filter backend run test",
         "prepare": "husky"
     },
@@ -38,5 +38,8 @@
         "lint-staged": "^15.2.2",
         "prettier": "^3.9.9",
         "typescript-eslint": "^8.70.1"
+    },
+    "dependencies": {
+        "zod": "^3.25.76"
     }
 }

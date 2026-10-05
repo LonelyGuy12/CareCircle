@@ -1,40 +1,32 @@
 import { LoggerService } from '@platform/logger/logger.service';
-import { AuthenticationError, ConflictError, ForbiddenError, NotFoundError } from '@shared/json';
+import { AuthenticationError, ConflictError, NotFoundError } from '@shared/json';
 import { IUpdateUserProfile, IUser } from '@shared/types';
 import { hashString, verifyHash } from '@shared/utils/auth';
 
 import { UserRepository } from './user.repository';
 
-/**
- * @TODO - remove sensetive info form the returned object
- *       - set proper returned type
- */
+interface MediaService {
+    upload: (file: unknown, folder: string) => Promise<string>;
+    remove: (path: string) => Promise<void>;
+}
+
 export class UserService {
     constructor(
         private readonly userRepository: UserRepository,
         private readonly logger: LoggerService,
-        private readonly mediaService?: any,
+        private readonly mediaService?: MediaService,
     ) {}
 
-    private stripSensitiveData(user: {
-        password?: unknown;
-        _count?: {
-            followers: number;
-            following: number;
-            likes: number;
-            posts: number;
-            articles: number;
-        } | null;
-        [key: string]: unknown;
-    }): Record<string, unknown> {
+    private stripSensitiveData(user: Record<string, unknown>) {
         const { password: _password, _count, ...safeUser } = user;
         const flattenedUser: Record<string, unknown> = { ...safeUser };
-        if (_count) {
-            flattenedUser.followersCount = _count.followers;
-            flattenedUser.followingCount = _count.following;
-            flattenedUser.likesCount = _count.likes;
-            flattenedUser.postsCount = _count.posts;
-            flattenedUser.articlesCount = _count.articles;
+        if (_count && typeof _count === 'object') {
+            const countObj = _count as Record<string, unknown>;
+            flattenedUser.followersCount = countObj.followers;
+            flattenedUser.followingCount = countObj.following;
+            flattenedUser.likesCount = countObj.likes;
+            flattenedUser.postsCount = countObj.posts;
+            flattenedUser.articlesCount = countObj.articles;
         }
         return flattenedUser;
     }
@@ -47,7 +39,7 @@ export class UserService {
         return this.stripSensitiveData(user) as unknown as IUser;
     }
 
-    async getProfile(id: number, viewerId?: number): Promise<any> {
+    async getProfile(id: number, viewerId?: number): Promise<Record<string, unknown>> {
         const user = await this.userRepository.findUserById(id);
         if (!user) {
             throw new NotFoundError('User');
@@ -75,19 +67,19 @@ export class UserService {
         const updates = { ...profile };
 
         // 1. Handle Avatar upload if provided
-        if (files?.avatar) {
+        if (files?.avatar && this.mediaService) {
             updates.avatar = await this.mediaService.upload(files.avatar, 'avatar');
             // Cleanup old avatar
-            if (user.avatar && !user.avatar.startsWith('http')) {
+            if (user.avatar && typeof user.avatar === 'string' && !user.avatar.startsWith('http')) {
                 await this.mediaService.remove(user.avatar);
             }
         }
 
         // 2. Handle Banner upload if provided
-        if (files?.banner) {
+        if (files?.banner && this.mediaService) {
             updates.banner = await this.mediaService.upload(files.banner, 'banner');
             // Cleanup old banner
-            if (user.banner && !user.banner.startsWith('http')) {
+            if (user.banner && typeof user.banner === 'string' && !user.banner.startsWith('http')) {
                 await this.mediaService.remove(user.banner);
             }
         }
@@ -101,11 +93,14 @@ export class UserService {
         const user = await this.userRepository.findUserById(userId);
         if (!user) throw new NotFoundError('User');
 
-        const avatarUrl = await this.mediaService.upload(file, 'avatar');
+        let avatarUrl: string | undefined;
+        if (this.mediaService) {
+            avatarUrl = await this.mediaService.upload(file, 'avatar');
 
-        // Optionally delete old avatar if it exists and is local
-        if (user.avatar && !user.avatar.startsWith('http')) {
-            await this.mediaService.remove(user.avatar);
+            // Optionally delete old avatar if it exists and is local
+            if (user.avatar && typeof user.avatar === 'string' && !user.avatar.startsWith('http')) {
+                await this.mediaService.remove(user.avatar);
+            }
         }
 
         const updatedUser = await this.userRepository.updateUserProfile(userId, {
@@ -120,14 +115,14 @@ export class UserService {
         if (!user) {
             throw new NotFoundError('User');
         }
-        const isPasswordValid = await verifyHash(user.password, oldPassword);
+        const isPasswordValid = await verifyHash(user.password ?? '', oldPassword);
         if (!isPasswordValid) {
             throw new AuthenticationError('Invalid password');
         }
         const hashedNewPassword = await hashString(newPassword);
         const updatedUser = await this.userRepository.updatePassword(id, hashedNewPassword);
         this.logger.info('Password updated successfully', { userId: id });
-        return this.stripSensitiveData(updatedUser);
+        return updatedUser ? this.stripSensitiveData(updatedUser) : null;
     }
 
     async updateEmail(id: number, email: string, password: string) {
@@ -142,13 +137,13 @@ export class UserService {
         if (isEmailExist) {
             throw new ConflictError('Email already exists');
         }
-        const isPasswordValid = await verifyHash(user.password, password);
+        const isPasswordValid = await verifyHash(user.password ?? '', password);
         if (!isPasswordValid) {
             throw new AuthenticationError('Invalid password');
         }
         const updatedUser = await this.userRepository.updateUserEmail(id, email);
         this.logger.info('Email updated successfully', { userId: id, email });
-        return this.stripSensitiveData(updatedUser);
+        return updatedUser ? this.stripSensitiveData(updatedUser) : null;
     }
 
     /// @TODO: for 2fa user needs to pass password
@@ -158,7 +153,7 @@ export class UserService {
         if (!user) {
             throw new NotFoundError('User');
         }
-        const isPasswordValid = await verifyHash(user.password, password);
+        const isPasswordValid = await verifyHash(user.password ?? '', password);
         if (!isPasswordValid) {
             throw new AuthenticationError('Invalid password');
         }
@@ -167,7 +162,7 @@ export class UserService {
             userId: id,
             twoFactorEnabled,
         });
-        return this.stripSensitiveData(updatedUser);
+        return updatedUser ? this.stripSensitiveData(updatedUser) : null;
     }
 
     async deleteUser(id: number, password: string) {
@@ -175,12 +170,12 @@ export class UserService {
         if (!user) {
             throw new NotFoundError('User');
         }
-        const isPasswordValid = await verifyHash(user.password, password);
+        const isPasswordValid = await verifyHash(user.password ?? '', password);
         if (!isPasswordValid) {
             throw new AuthenticationError('Invalid password');
         }
         const deletedUser = await this.userRepository.deleteUser(id);
         this.logger.info('User deleted successfully', { userId: id });
-        return this.stripSensitiveData(deletedUser);
+        return deletedUser ? this.stripSensitiveData(deletedUser) : null;
     }
 }

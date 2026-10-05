@@ -112,7 +112,7 @@ export class DynamoDBService implements IDatabaseProvider {
 
     // CRUD Methods implementing IDatabaseProvider
 
-    async getItem<T = any>(tableName: string, key: Record<string, any>): Promise<T | null> {
+    async getItem<T = unknown>(tableName: string, key: Record<string, unknown>): Promise<T | null> {
         const fullTableName = this.FullTableName(tableName);
         const command = new GetCommand({
             TableName: fullTableName,
@@ -122,32 +122,33 @@ export class DynamoDBService implements IDatabaseProvider {
         return (result.Item as T) || null;
     }
 
-    async putItem<T = any>(tableName: string, item: T): Promise<T> {
+    async putItem<T = unknown>(tableName: string, item: T): Promise<T> {
         const fullTableName = this.FullTableName(tableName);
         const command = new PutCommand({
             TableName: fullTableName,
-            Item: item as any,
+            Item: item as Record<string, unknown>,
         });
         await this.docClient.send(command);
         return item;
     }
 
-    async updateItem(
+    async updateItem<T = Record<string, unknown>>(
         tableName: string,
-        key: Record<string, any>,
-        updateData: Record<string, any>,
-    ): Promise<any> {
+        key: Record<string, unknown>,
+        updateData: Record<string, unknown> | object,
+    ): Promise<T | null> {
         const fullTableName = this.FullTableName(tableName);
-        const updateKeys = Object.keys(updateData);
-        if (updateKeys.length === 0) return this.getItem(tableName, key);
+        const data = updateData as Record<string, unknown>;
+        const updateKeys = Object.keys(data);
+        if (updateKeys.length === 0) return this.getItem<T>(tableName, key);
 
         const updateExpression = `SET ${updateKeys.map((k, i) => `#k${i} = :v${i}`).join(', ')}`;
         const expressionAttributeNames: Record<string, string> = {};
-        const expressionAttributeValues: Record<string, any> = {};
+        const expressionAttributeValues: Record<string, unknown> = {};
 
         updateKeys.forEach((k, i) => {
             expressionAttributeNames[`#k${i}`] = k;
-            expressionAttributeValues[`:v${i}`] = updateData[k];
+            expressionAttributeValues[`:v${i}`] = data[k];
         });
 
         const command = new UpdateCommand({
@@ -159,10 +160,10 @@ export class DynamoDBService implements IDatabaseProvider {
             ReturnValues: 'ALL_NEW',
         });
         const result = await this.docClient.send(command);
-        return result.Attributes;
+        return (result.Attributes as T) || null;
     }
 
-    async deleteItem(tableName: string, key: Record<string, any>): Promise<boolean> {
+    async deleteItem(tableName: string, key: Record<string, unknown>): Promise<boolean> {
         const fullTableName = this.FullTableName(tableName);
         const command = new DeleteCommand({
             TableName: fullTableName,
@@ -172,7 +173,7 @@ export class DynamoDBService implements IDatabaseProvider {
         return true;
     }
 
-    async query<T = any>(tableName: string, params?: Record<string, any>): Promise<T[]> {
+    async query<T = unknown>(tableName: string, params?: Record<string, unknown>): Promise<T[]> {
         const fullTableName = this.FullTableName(tableName);
         const command = new QueryCommand({
             TableName: fullTableName,
@@ -182,7 +183,7 @@ export class DynamoDBService implements IDatabaseProvider {
         return (result.Items as T[]) || [];
     }
 
-    async scan<T = any>(tableName: string, params?: Record<string, any>): Promise<T[]> {
+    async scan<T = unknown>(tableName: string, params?: Record<string, unknown>): Promise<T[]> {
         const fullTableName = this.FullTableName(tableName);
         const command = new ScanCommand({
             TableName: fullTableName,
