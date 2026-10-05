@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { useCareCircle } from '../state/care-circle';
 import { formatDate, formatTime } from '../utils';
 import type { Appointment } from '../types/mock';
+import { appointmentInputSchema, toFieldErrors } from '../../../shared/schemas';
 import { Button, Card, CardContent, Dialog, EmptyState, Input, useToast } from '../components/ui';
 
 interface ApptFormState {
@@ -30,16 +31,9 @@ function toForm(appt: Appointment | null): ApptFormState {
 }
 
 function validate(form: ApptFormState): Partial<Record<keyof ApptFormState, string>> {
-    const errors: Partial<Record<keyof ApptFormState, string>> = {};
-    if (form.title.trim().length === 0) errors.title = 'Appointment title is required.';
-    if (form.doctor.trim().length === 0) errors.doctor = 'Doctor or clinic is required.';
-    if (form.location.trim().length === 0) errors.location = 'Location is required.';
-    if (form.dateTime.trim().length === 0) {
-        errors.dateTime = 'Date and time are required.';
-    } else if (Number.isNaN(new Date(form.dateTime).getTime())) {
-        errors.dateTime = 'Enter a valid date and time.';
-    }
-    return errors;
+    const result = appointmentInputSchema.safeParse(form);
+    if (result.success) return {};
+    return toFieldErrors(result.error.issues) as Partial<Record<keyof ApptFormState, string>>;
 }
 
 export default function Appointments() {

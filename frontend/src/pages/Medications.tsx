@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { useCareCircle } from '../state/care-circle';
 import type { Medication } from '../types/mock';
+import { medicationFormSchema, parseTimesString, toFieldErrors } from '../../../shared/schemas';
 import {
     Button,
     Card,
@@ -33,19 +34,9 @@ function toForm(med: Medication | null): MedFormState {
 }
 
 function validate(form: MedFormState): Partial<Record<keyof MedFormState, string>> {
-    const errors: Partial<Record<keyof MedFormState, string>> = {};
-    if (form.name.trim().length === 0) errors.name = 'Medication name is required.';
-    if (form.dosage.trim().length === 0) errors.dosage = 'Dosage is required (e.g. 5 mg).';
-    const times = form.times
-        .split(',')
-        .map((t) => t.trim())
-        .filter((t) => t.length > 0);
-    if (times.length === 0) {
-        errors.times = 'Add at least one daily time (e.g. 09:00, 20:00).';
-    } else if (!times.every((t) => /^([01]\d|2[0-3]):[0-5]\d$/.test(t))) {
-        errors.times = 'Times must look like 09:00 (24-hour, comma-separated).';
-    }
-    return errors;
+    const result = medicationFormSchema.safeParse(form);
+    if (result.success) return {};
+    return toFieldErrors(result.error.issues) as Partial<Record<keyof MedFormState, string>>;
 }
 
 export default function Medications() {
@@ -75,10 +66,7 @@ export default function Medications() {
         const found = validate(form);
         setErrors(found);
         if (Object.keys(found).length > 0) return;
-        const times = form.times
-            .split(',')
-            .map((t) => t.trim())
-            .filter((t) => t.length > 0);
+        const times = parseTimesString(form.times);
         if (editing) {
             updateMedication({
                 ...editing,
