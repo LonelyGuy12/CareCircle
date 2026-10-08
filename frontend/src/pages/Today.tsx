@@ -9,6 +9,8 @@ import {
     CardDescription,
     CardHeader,
     CardTitle,
+    ErrorBanner,
+    PageSkeleton,
     StatusBadge,
     useToast,
 } from '../components/ui';
@@ -25,8 +27,19 @@ function statusFor(doseStatus: 'taken' | 'missed' | 'pending'): 'taken' | 'due' 
 export default function Today() {
     const ctx = useCareCircle();
     const { push } = useToast();
-    const { doseLogs, medications, appointments, summaries, alerts, weeklyAdherence, lastUpdated } =
-        ctx;
+    const {
+        doseLogs,
+        medications,
+        appointments,
+        summaries,
+        alerts,
+        weeklyAdherence,
+        lastUpdated,
+        status,
+        error,
+        dataSource,
+        refresh,
+    } = ctx;
 
     const medById: Record<string, Medication> = Object.fromEntries(
         medications.map((m) => [m.id, m]),
@@ -38,12 +51,36 @@ export default function Today() {
     const unread = alerts.filter((a) => !a.read);
 
     const onMarkTaken = (doseId: string, medName: string) => {
-        ctx.markTaken(doseId);
-        push(`${medName} marked as taken`, 'success');
+        void (async () => {
+            try {
+                await ctx.markTaken(doseId);
+                push(`${medName} marked as taken`, 'success');
+            } catch (err) {
+                push(
+                    err instanceof Error ? err.message : 'Could not mark the dose as taken.',
+                    'error',
+                );
+            }
+        })();
     };
+
+    if (status === 'loading') {
+        return (
+            <div className="space-y-6">
+                <h1 className="text-2xl font-bold">Today</h1>
+                <PageSkeleton />
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6">
+            {(status === 'error' || (status === 'mock' && error)) && (
+                <ErrorBanner
+                    message={`${error ?? 'The live API is unreachable.'} Showing ${status === 'error' ? 'last loaded' : 'demo'} data.`}
+                    onRetry={() => void refresh()}
+                />
+            )}
             <div className="flex flex-wrap items-end justify-between gap-2">
                 <h1 className="text-2xl font-bold">Today</h1>
                 <p aria-live="polite" className="text-sm text-slate-500 dark:text-slate-400">
@@ -52,7 +89,8 @@ export default function Today() {
                         hour: 'numeric',
                         minute: '2-digit',
                         second: '2-digit',
-                    })}
+                    })}{' '}
+                    · {dataSource}
                 </p>
             </div>
 
@@ -119,45 +157,54 @@ export default function Today() {
                     </div>
                 </CardHeader>
                 <CardContent>
-                    <ol className="relative space-y-1 border-l-2 border-slate-200 pl-5 dark:border-slate-700">
-                        {sortedDoses.map((d) => {
-                            const med = medById[d.medicationId];
-                            if (!med) return null;
-                            const due = d.status === 'pending';
-                            return (
-                                <li
-                                    key={d.id}
-                                    className="flex flex-wrap items-center justify-between gap-3 py-3"
-                                >
-                                    <div className="min-w-0">
-                                        <p className="font-semibold">
-                                            {med.name}{' '}
-                                            <span className="font-normal text-slate-500">
-                                                {med.dosage}
-                                            </span>
-                                        </p>
-                                        <p className="text-slate-600 dark:text-slate-400">
-                                            {formatTime(d.scheduledAt)}
-                                            {d.confirmedAt && d.status === 'taken' && (
-                                                <> · confirmed {formatTime(d.confirmedAt)}</>
+                    {sortedDoses.length === 0 ? (
+                        <p className="py-4 text-slate-600 dark:text-slate-400">
+                            No doses scheduled for today.
+                        </p>
+                    ) : (
+                        <ol className="relative space-y-1 border-l-2 border-slate-200 pl-5 dark:border-slate-700">
+                            {sortedDoses.map((d) => {
+                                const med = medById[d.medicationId];
+                                // Live doses carry medicationName/dosage from the
+                                // backend; fall back to the medication list.
+                                const medName = med?.name ?? d.medicationName ?? 'Dose';
+                                const dosage = med?.dosage ?? d.dosage ?? '';
+                                const due = d.status === 'pending';
+                                return (
+                                    <li
+                                        key={d.id}
+                                        className="flex flex-wrap items-center justify-between gap-3 py-3"
+                                    >
+                                        <div className="min-w-0">
+                                            <p className="font-semibold">
+                                                {medName}{' '}
+                                                <span className="font-normal text-slate-500">
+                                                    {dosage}
+                                                </span>
+                                            </p>
+                                            <p className="text-slate-600 dark:text-slate-400">
+                                                {formatTime(d.scheduledAt)}
+                                                {d.confirmedAt && d.status === 'taken' && (
+                                                    <> · confirmed {formatTime(d.confirmedAt)}</>
+                                                )}
+                                            </p>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <StatusBadge status={statusFor(d.status)} />
+                                            {due && (
+                                                <Button
+                                                    size="sm"
+                                                    onClick={() => onMarkTaken(d.id, medName)}
+                                                >
+                                                    Mark taken
+                                                </Button>
                                             )}
-                                        </p>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <StatusBadge status={statusFor(d.status)} />
-                                        {due && (
-                                            <Button
-                                                size="sm"
-                                                onClick={() => onMarkTaken(d.id, med.name)}
-                                            >
-                                                Mark taken
-                                            </Button>
-                                        )}
-                                    </div>
-                                </li>
-                            );
-                        })}
-                    </ol>
+                                        </div>
+                                    </li>
+                                );
+                            })}
+                        </ol>
+                    )}
                 </CardContent>
             </Card>
 

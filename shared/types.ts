@@ -46,6 +46,10 @@ export interface Medication {
     /** Daily dose times in 24-hour `HH:MM` format, e.g. `["09:00", "20:00"]`. */
     times: string[];
     instructions: string;
+    /** Extra backend fields (DynamoDB). Optional so mock data stays valid. */
+    aliases?: string[];
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 export interface DoseLog {
@@ -56,6 +60,9 @@ export interface DoseLog {
     status: DoseStatus;
     confirmedAt?: string | null;
     confirmedVia?: string | null;
+    /** Enriched by the backend from the linked medication. */
+    medicationName?: string;
+    dosage?: string;
 }
 
 export interface WeeklyAdherence {
@@ -73,6 +80,8 @@ export interface Appointment {
     /** ISO-8601 date-time. */
     dateTime: string;
     notes?: string;
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 export interface Summary {
@@ -82,6 +91,8 @@ export interface Summary {
     headline: string;
     text: string;
     flags: string[];
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 export interface Alert {

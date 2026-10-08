@@ -1,7 +1,17 @@
 import { type FormEvent, useState } from 'react';
 
 import { appointmentInputSchema, toFieldErrors } from '../../../shared/schemas';
-import { Button, Card, CardContent, Dialog, EmptyState, Input, useToast } from '../components/ui';
+import {
+    Button,
+    Card,
+    CardContent,
+    Dialog,
+    EmptyState,
+    ErrorBanner,
+    Input,
+    PageSkeleton,
+    useToast,
+} from '../components/ui';
 import { useCareCircle } from '../state/care-circle';
 import type { Appointment } from '../types/mock';
 import { formatDate, formatTime } from '../utils';
@@ -38,7 +48,8 @@ function validate(form: ApptFormState): Partial<Record<keyof ApptFormState, stri
 }
 
 export default function Appointments() {
-    const { appointments, addAppointment, updateAppointment } = useCareCircle();
+    const { appointments, addAppointment, updateAppointment, status, error, refresh } =
+        useCareCircle();
     const { push } = useToast();
     const [editing, setEditing] = useState<Appointment | null>(null);
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -66,29 +77,41 @@ export default function Appointments() {
         const found = validate(form);
         setErrors(found);
         if (Object.keys(found).length > 0) return;
-        if (editing) {
-            updateAppointment({
-                ...editing,
-                title: form.title.trim(),
-                doctor: form.doctor.trim(),
-                location: form.location.trim(),
-                dateTime: new Date(form.dateTime).toISOString(),
-                notes: form.notes.trim(),
-            });
-            push(`${form.title.trim()} updated`, 'success');
-        } else {
-            addAppointment({
-                id: `appt_${Date.now()}`,
-                title: form.title.trim(),
-                doctor: form.doctor.trim(),
-                location: form.location.trim(),
-                dateTime: new Date(form.dateTime).toISOString(),
-                notes: form.notes.trim(),
-            });
-            push(`${form.title.trim()} added`, 'success');
-        }
-        setDialogOpen(false);
+        const title = form.title.trim();
+        const payload = {
+            title,
+            doctor: form.doctor.trim(),
+            location: form.location.trim(),
+            dateTime: new Date(form.dateTime).toISOString(),
+            notes: form.notes.trim(),
+        };
+        void (async () => {
+            try {
+                if (editing) {
+                    await updateAppointment(editing.id, payload);
+                    push(`${title} updated`, 'success');
+                } else {
+                    await addAppointment(payload);
+                    push(`${title} added`, 'success');
+                }
+                setDialogOpen(false);
+            } catch (err) {
+                push(
+                    err instanceof Error ? err.message : 'Could not save the appointment.',
+                    'error',
+                );
+            }
+        })();
     };
+
+    if (status === 'loading') {
+        return (
+            <div className="space-y-6">
+                <h1 className="text-2xl font-bold">Appointments</h1>
+                <PageSkeleton />
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6">
@@ -96,6 +119,13 @@ export default function Appointments() {
                 <h1 className="text-2xl font-bold">Appointments</h1>
                 <Button onClick={openAdd}>Add appointment</Button>
             </div>
+
+            {error && (
+                <ErrorBanner
+                    message={`${error} Showing ${status === 'error' ? 'last loaded' : 'demo'} data.`}
+                    onRetry={() => void refresh()}
+                />
+            )}
 
             {sorted.length === 0 ? (
                 <EmptyState

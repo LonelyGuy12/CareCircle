@@ -1,5 +1,6 @@
 import { type FormEvent, useEffect, useRef, useState } from 'react';
 
+import { api } from '../api';
 import { cn } from '../lib/cn';
 import { useCareCircle } from '../state/care-circle';
 import { formatDate, formatTime } from '../utils';
@@ -62,6 +63,7 @@ export function ChatBox() {
     ]);
     const [draft, setDraft] = useState('');
     const [typing, setTyping] = useState(false);
+    const [liveAnswers, setLiveAnswers] = useState(false);
     const bottomRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -74,14 +76,25 @@ export function ChatBox() {
         setMessages((prev) => [...prev, { id: nextMessageId++, from: 'caregiver', text: trimmed }]);
         setDraft('');
         setTyping(true);
-        const reply = answerFor(trimmed, ctx);
-        window.setTimeout(() => {
-            setMessages((prev) => [
-                ...prev,
-                { id: nextMessageId++, from: 'assistant', text: reply },
-            ]);
-            setTyping(false);
-        }, 800);
+        // Oct 14 wiring: ask the live /api/qa endpoint first (lonely/ai); fall
+        // back to on-device answers until it exists.
+        void (async () => {
+            try {
+                const res = await api.askQuestion(trimmed);
+                setLiveAnswers(res.live);
+                setMessages((prev) => [
+                    ...prev,
+                    { id: nextMessageId++, from: 'assistant', text: res.answer },
+                ]);
+            } catch {
+                setMessages((prev) => [
+                    ...prev,
+                    { id: nextMessageId++, from: 'assistant', text: answerFor(trimmed, ctx) },
+                ]);
+            } finally {
+                setTyping(false);
+            }
+        })();
     };
 
     const onSubmit = (e: FormEvent) => {
@@ -95,7 +108,9 @@ export function ChatBox() {
                 <div>
                     <CardTitle>Ask about care</CardTitle>
                     <CardDescription>
-                        Answers from today&apos;s mock data · demo only
+                        {liveAnswers
+                            ? 'Answered by the live AI assistant'
+                            : "Answers from today's data · on-device demo answers"}
                     </CardDescription>
                 </div>
             </CardHeader>
