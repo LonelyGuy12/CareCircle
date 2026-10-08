@@ -1,17 +1,24 @@
 /**
- * CareCircle API client (frontend owner: Chillsidealways, due Oct 7).
+ * CareCircle API client (frontend owner: Chillsidealways).
  *
- * Covers every endpoint in the Phase 1 API contract so the dashboard can
- * flip from mock data to the live Express API without changing call sites.
+ * Phase 3 (integration, Oct 10–16): the dashboard talks to the live Express
+ * API when `VITE_API_URL` is set (e.g. `http://localhost:5500`). With no
+ * `VITE_API_URL` it runs on `data/mock.json` so every module stays demoable
+ * alone and the demo never goes blank.
  *
- * Until Oct 10 (integration) there is no deployed API, so when
- * `VITE_API_URL` is unset — or a request fails — the client falls back to
- * `data/mock.json`. That keeps the Oct 9 "demoable alone" milestone green.
+ * Live endpoints (Musha/backend, mounted under `/` and `/api`):
+ *   medications: GET / POST / · GET / PATCH / DELETE /:id
+ *   doses:       GET /today · GET /due · POST /:id/confirm { via }
+ *   appointments: GET / POST / · GET /next · GET /:id · PATCH / DELETE /:id
+ *   summaries:   GET / · GET /:date (YYYY-MM-DD) · POST /
+ *
+ * No backend endpoints yet (stay local): alerts, weekly adherence,
+ * care recipient/profile, caregiver Q&A (`/api/qa` is attempted first and
+ * falls back to on-device answers until lonely/ai lands it).
  *
  * Standard envelope (backend):
  *   success: `{ success: true, message, data }`
  *   error:   `{ success: false, message, error: { code, details } }`
- * The mock MCP server returns bare arrays; both shapes are unwrapped.
  */
 import type {
     Alert,
@@ -54,7 +61,7 @@ export class ApiError extends Error {
 
 const BASE_URL = (import.meta.env?.VITE_API_URL as string | undefined)?.replace(/\/$/, '') ?? '';
 
-/** True while there is no live API configured (Phase 2: mock-data mode). */
+/** True while there is no live API configured (mock-data mode). */
 export const isMockMode = BASE_URL.length === 0;
 
 function isEnvelope(value: unknown): value is { success: boolean; message: string; data: unknown } {
@@ -77,35 +84,55 @@ function unwrap<T>(payload: unknown): T {
     return payload as T;
 }
 
+/** Live request. Throws ApiError on HTTP failures — no silent mock fallback. */
 async function request<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
     const { timeoutMs = 8000, ...init } = options;
     const controller = new AbortController();
     const timer = window.setTimeout(() => controller.abort(), timeoutMs);
+    let res: Response;
     try {
-        const res = await fetch(`${BASE_URL}${path}`, {
+        res = await fetch(`${BASE_URL}${path}`, {
             headers: { 'Content-Type': 'application/json', ...(init.headers ?? {}) },
             ...init,
             signal: controller.signal,
         });
-        const body: unknown = await res.json().catch(() => null);
-        if (!res.ok) {
-            if (body !== null && typeof body === 'object' && 'error' in (body as object)) {
-                throw ApiError.fromEnvelope(res.status, body as ApiErrorShape);
-            }
-            throw new ApiError(res.status, `Request failed (${res.status})`);
+    } catch (err) {
+        if (err instanceof DOMException && err.name === 'AbortError') {
+            throw new ApiError(0, 'The request timed out. Check the API URL and retry.', 'TIMEOUT');
         }
-        return unwrap<T>(body);
+        throw new ApiError(
+            0,
+            'Cannot reach the API. Is the backend running at VITE_API_URL?',
+            'NETWORK_ERROR',
+        );
     } finally {
         window.clearTimeout(timer);
     }
+    const body: unknown = await res.json().catch(() => null);
+    if (!res.ok) {
+        if (body !== null && typeof body === 'object' && 'error' in (body as object)) {
+            throw ApiError.fromEnvelope(res.status, body as ApiErrorShape);
+        }
+        // Some failures (e.g. CSRF 403) carry only { success, message }.
+        let message = `Request failed (${res.status})`;
+        if (body !== null && typeof body === 'object' && 'message' in body) {
+            const maybe = (body as { message?: unknown }).message;
+            if (typeof maybe === 'string' && maybe.length > 0) message = maybe;
+        }
+        throw new ApiError(res.status, message);
+    }
+    return unwrap<T>(body);
 }
 
-/** Local mock fallback (same shapes as the live API would return). */
+/** Local mock data (same shapes as the live API returns). */
 const mock = {
     medications: () => mockData.medications as Medication[],
     medication: (id: string) =>
         (mockData.medications as Medication[]).find((m) => m.id === id) ?? null,
-    dosesToday: () => mockData.doseLogs as DoseLog[],
+    dosesToday: () =>
+        [...(mockData.doseLogs as DoseLog[])].sort((a, b) =>
+            a.scheduledAt.localeCompare(b.scheduledAt),
+        ),
     dosesDue: () => (mockData.doseLogs as DoseLog[]).filter((d) => d.status === 'pending'),
     appointments: () =>
         [...(mockData.appointments as Appointment[])].sort((a, b) =>
@@ -122,20 +149,12 @@ const mock = {
     adherenceWeekly: () => mockData.weeklyAdherence as WeeklyAdherence[],
 };
 
-async function withFallback<T>(
-    path: string,
-    fallback: () => T,
-    options?: ApiRequestOptions,
-): Promise<T> {
-    if (isMockMode) return fallback();
-    try {
-        return await request<T>(path, options);
-    } catch {
-        return fallback();
-    }
-}
-
 const json = (body: unknown) => ({ method: 'POST', body: JSON.stringify(body) }) as const;
+
+export interface QaAnswer extends QaResponse {
+    /** False when the answer came from on-device mock data (no /api/qa yet). */
+    live: boolean;
+}
 
 export const api = {
     baseUrl: BASE_URL,
@@ -143,196 +162,162 @@ export const api = {
 
     // -- health ----------------------------------------------------------
     health(): Promise<{ status: string }> {
-        return withFallback('/api/health', () => ({ status: 'ok (mock)' }));
+        if (isMockMode) return Promise.resolve({ status: 'ok (mock)' });
+        return request<{ status: string }>('/api/health');
     },
 
-    // -- medications (5 endpoints, due Oct 1) -----------------------------
+    // -- medications ------------------------------------------------------
     listMedications(): Promise<Medication[]> {
-        return withFallback('/api/medications', mock.medications);
+        if (isMockMode) return Promise.resolve(mock.medications());
+        return request<Medication[]>('/api/medications');
     },
 
     getMedication(id: string): Promise<Medication | null> {
-        return withFallback(`/api/medications/${encodeURIComponent(id)}`, () =>
-            mock.medication(id),
-        );
+        if (isMockMode) return Promise.resolve(mock.medication(id));
+        return request<Medication>(`/api/medications/${encodeURIComponent(id)}`);
     },
 
-    async createMedication(input: CreateMedicationInput): Promise<Medication> {
+    createMedication(input: CreateMedicationInput): Promise<Medication> {
         if (isMockMode) {
-            return {
-                id: `med_${Date.now()}`,
-                instructions: '',
-                ...input,
-            };
+            return Promise.resolve({ id: `med_${Date.now()}`, instructions: '', ...input });
         }
-        try {
-            return await request<Medication>('/api/medications', json(input));
-        } catch {
-            return { id: `med_${Date.now()}`, instructions: '', ...input };
-        }
+        return request<Medication>('/api/medications', json(input));
     },
 
-    async updateMedication(id: string, patch: UpdateMedicationInput): Promise<Medication | null> {
+    updateMedication(id: string, patch: UpdateMedicationInput): Promise<Medication> {
         if (isMockMode) {
             const current = mock.medication(id);
-            return current ? { ...current, ...patch } : null;
+            if (!current) throw new ApiError(404, 'Medication not found.', 'NOT_FOUND');
+            return Promise.resolve({ ...current, ...patch });
         }
-        try {
-            return await request<Medication>(`/api/medications/${encodeURIComponent(id)}`, {
-                method: 'PATCH',
-                body: JSON.stringify(patch),
-            });
-        } catch {
-            const current = mock.medication(id);
-            return current ? { ...current, ...patch } : null;
-        }
+        return request<Medication>(`/api/medications/${encodeURIComponent(id)}`, {
+            method: 'PATCH',
+            body: JSON.stringify(patch),
+        });
     },
 
-    async deleteMedication(id: string): Promise<void> {
-        if (isMockMode) return;
-        try {
-            await request<void>(`/api/medications/${encodeURIComponent(id)}`, {
-                method: 'DELETE',
-            });
-        } catch {
-            return;
-        }
+    deleteMedication(id: string): Promise<void> {
+        if (isMockMode) return Promise.resolve();
+        return request<void>(`/api/medications/${encodeURIComponent(id)}`, {
+            method: 'DELETE',
+        }).then(() => undefined);
     },
 
-    // -- doses (due Oct 3) ------------------------------------------------
+    // -- doses -------------------------------------------------------------
     listTodayDoses(): Promise<DoseLog[]> {
-        return withFallback('/api/doses/today', mock.dosesToday);
+        if (isMockMode) return Promise.resolve(mock.dosesToday());
+        return request<DoseLog[]>('/api/doses/today');
     },
 
     listDueDoses(): Promise<DoseLog[]> {
-        return withFallback('/api/doses/due', mock.dosesDue);
+        if (isMockMode) return Promise.resolve(mock.dosesDue());
+        return request<DoseLog[]>('/api/doses/due');
     },
 
-    async confirmDose(doseId: string, via: ConfirmVia = 'dashboard'): Promise<DoseLog | null> {
+    /**
+     * Live: POST /api/doses/:id/confirm { via }. `via` follows the backend
+     * enum ('alexa' | 'dashboard' | 'caregiver'); anything else is sent as
+     * 'dashboard' so validation never rejects the confirm.
+     */
+    confirmDose(doseId: string, via: ConfirmVia = 'dashboard'): Promise<DoseLog> {
+        const safeVia = via === 'alexa' || via === 'caregiver' ? via : 'dashboard';
         if (isMockMode) {
-            const dose = mock.dosesToday().find((d) => d.id === doseId) ?? null;
-            return dose
-                ? {
-                      ...dose,
-                      status: 'taken',
-                      confirmedAt: new Date().toISOString(),
-                      confirmedVia: via,
-                  }
-                : null;
+            const dose = mock.dosesToday().find((d) => d.id === doseId);
+            if (!dose) throw new ApiError(404, 'Dose not found.', 'NOT_FOUND');
+            return Promise.resolve({
+                ...dose,
+                status: 'taken',
+                confirmedAt: new Date().toISOString(),
+                confirmedVia: safeVia,
+            });
         }
-        try {
-            return await request<DoseLog>('/api/doses/confirm', json({ doseId, via }));
-        } catch {
-            const dose = mock.dosesToday().find((d) => d.id === doseId) ?? null;
-            return dose ? { ...dose, status: 'taken', confirmedVia: via } : null;
-        }
+        return request<DoseLog>(`/api/doses/${encodeURIComponent(doseId)}/confirm`, {
+            method: 'POST',
+            body: JSON.stringify({ via: safeVia }),
+        });
     },
 
-    // -- appointments (due Oct 5) -----------------------------------------
+    // -- appointments -------------------------------------------------------
     listAppointments(): Promise<Appointment[]> {
-        return withFallback('/api/appointments', mock.appointments);
+        if (isMockMode) return Promise.resolve(mock.appointments());
+        return request<Appointment[]>('/api/appointments');
     },
 
     nextAppointment(): Promise<Appointment | null> {
-        return withFallback('/api/appointments/next', mock.nextAppointment);
+        if (isMockMode) return Promise.resolve(mock.nextAppointment());
+        return request<Appointment | null>('/api/appointments/next');
     },
 
-    async createAppointment(input: CreateAppointmentInput): Promise<Appointment> {
+    createAppointment(input: CreateAppointmentInput): Promise<Appointment> {
         if (isMockMode) {
-            return { id: `appt_${Date.now()}`, notes: '', ...input };
+            return Promise.resolve({ id: `appt_${Date.now()}`, notes: '', ...input });
         }
-        try {
-            return await request<Appointment>('/api/appointments', json(input));
-        } catch {
-            return { id: `appt_${Date.now()}`, notes: '', ...input };
-        }
+        return request<Appointment>('/api/appointments', json(input));
     },
 
-    async updateAppointment(
-        id: string,
-        patch: UpdateAppointmentInput,
-    ): Promise<Appointment | null> {
+    updateAppointment(id: string, patch: UpdateAppointmentInput): Promise<Appointment> {
         if (isMockMode) {
-            const current = mock.appointments().find((a) => a.id === id) ?? null;
-            return current ? { ...current, ...patch } : null;
+            const current = mock.appointments().find((a) => a.id === id);
+            if (!current) throw new ApiError(404, 'Appointment not found.', 'NOT_FOUND');
+            return Promise.resolve({ ...current, ...patch });
         }
-        try {
-            return await request<Appointment>(`/api/appointments/${encodeURIComponent(id)}`, {
-                method: 'PATCH',
-                body: JSON.stringify(patch),
-            });
-        } catch {
-            const current = mock.appointments().find((a) => a.id === id) ?? null;
-            return current ? { ...current, ...patch } : null;
-        }
+        return request<Appointment>(`/api/appointments/${encodeURIComponent(id)}`, {
+            method: 'PATCH',
+            body: JSON.stringify(patch),
+        });
     },
 
-    async deleteAppointment(id: string): Promise<void> {
-        if (isMockMode) return;
-        try {
-            await request<void>(`/api/appointments/${encodeURIComponent(id)}`, {
-                method: 'DELETE',
-            });
-        } catch {
-            return;
-        }
+    deleteAppointment(id: string): Promise<void> {
+        if (isMockMode) return Promise.resolve();
+        return request<void>(`/api/appointments/${encodeURIComponent(id)}`, {
+            method: 'DELETE',
+        }).then(() => undefined);
     },
 
-    // -- alerts (due Oct 5) ------------------------------------------------
+    // -- alerts: local-only (no backend endpoints yet) -----------------------
     listAlerts(): Promise<Alert[]> {
-        return withFallback('/api/alerts', mock.alerts);
+        return Promise.resolve(mock.alerts());
     },
 
-    async markAlertRead(id: string, read = true): Promise<Alert | null> {
-        if (isMockMode) {
-            const alert = mock.alerts().find((a) => a.id === id) ?? null;
-            return alert ? { ...alert, read } : null;
-        }
-        try {
-            return await request<Alert>(`/api/alerts/${encodeURIComponent(id)}`, {
-                method: 'PATCH',
-                body: JSON.stringify({ read }),
-            });
-        } catch {
-            const alert = mock.alerts().find((a) => a.id === id) ?? null;
-            return alert ? { ...alert, read } : null;
-        }
+    markAlertRead(id: string, read = true): Promise<Alert | null> {
+        const alert = mock.alerts().find((a) => a.id === id) ?? null;
+        return Promise.resolve(alert ? { ...alert, read } : null);
     },
 
-    async markAllAlertsRead(): Promise<void> {
-        if (isMockMode) return;
-        try {
-            await request<void>('/api/alerts/read-all', json({}));
-        } catch {
-            return;
-        }
+    markAllAlertsRead(): Promise<void> {
+        return Promise.resolve();
     },
 
-    // -- summaries (due Oct 5) ---------------------------------------------
+    // -- summaries ------------------------------------------------------------
     listSummaries(): Promise<Summary[]> {
-        return withFallback('/api/summaries', mock.summaries);
+        if (isMockMode) return Promise.resolve(mock.summaries());
+        return request<Summary[]>('/api/summaries');
     },
 
     getSummaryByDate(date: string): Promise<Summary | null> {
-        return withFallback(`/api/summaries/${encodeURIComponent(date)}`, () => mock.summary(date));
+        if (isMockMode) return Promise.resolve(mock.summary(date));
+        return request<Summary | null>(`/api/summaries/${encodeURIComponent(date)}`);
     },
 
-    // -- adherence (due Oct 5) ----------------------------------------------
+    // -- adherence: local-only (no backend endpoint yet) -----------------------
     weeklyAdherence(): Promise<WeeklyAdherence[]> {
-        return withFallback('/api/adherence/weekly', mock.adherenceWeekly);
+        return Promise.resolve(mock.adherenceWeekly());
     },
 
-    // -- caregiver Q&A (AI features, v1 due Oct 7; live wiring Oct 14) ------
-    async askQuestion(question: string): Promise<QaResponse> {
-        const fallback: QaResponse = {
-            answer: 'Live answers arrive with integration (Oct 14). Showing mock data for now.',
-        };
-        if (isMockMode) return fallback;
-        try {
-            return await request<QaResponse>('/api/qa', json({ question }));
-        } catch {
-            return fallback;
+    // -- caregiver Q&A (Oct 14: try live /api/qa, fall back to device) ---------
+    async askQuestion(question: string): Promise<QaAnswer> {
+        if (!isMockMode) {
+            try {
+                const live = await request<QaResponse>('/api/qa', json({ question }));
+                return { ...live, live: true };
+            } catch {
+                // No /api/qa on the backend yet — answer on-device below.
+            }
         }
+        return {
+            answer: 'Live answers arrive with integration. Showing on-device answers for now.',
+            live: false,
+        };
     },
 };
 

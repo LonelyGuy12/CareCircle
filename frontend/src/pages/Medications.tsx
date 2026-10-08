@@ -9,7 +9,9 @@ import {
     CardTitle,
     Dialog,
     EmptyState,
+    ErrorBanner,
     Input,
+    PageSkeleton,
     useToast,
 } from '../components/ui';
 import { useCareCircle } from '../state/care-circle';
@@ -41,7 +43,8 @@ function validate(form: MedFormState): Partial<Record<keyof MedFormState, string
 }
 
 export default function Medications() {
-    const { medications, addMedication, updateMedication } = useCareCircle();
+    const { medications, addMedication, updateMedication, status, error, refresh } =
+        useCareCircle();
     const { push } = useToast();
     const [editing, setEditing] = useState<Medication | null>(null);
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -68,27 +71,44 @@ export default function Medications() {
         setErrors(found);
         if (Object.keys(found).length > 0) return;
         const times = parseTimesString(form.times);
-        if (editing) {
-            updateMedication({
-                ...editing,
-                name: form.name.trim(),
-                dosage: form.dosage.trim(),
-                times,
-                instructions: form.instructions.trim(),
-            });
-            push(`${form.name.trim()} updated`, 'success');
-        } else {
-            addMedication({
-                id: `med_${Date.now()}`,
-                name: form.name.trim(),
-                dosage: form.dosage.trim(),
-                times,
-                instructions: form.instructions.trim(),
-            });
-            push(`${form.name.trim()} added`, 'success');
-        }
-        setDialogOpen(false);
+        const name = form.name.trim();
+        void (async () => {
+            try {
+                if (editing) {
+                    await updateMedication(editing.id, {
+                        name,
+                        dosage: form.dosage.trim(),
+                        times,
+                        instructions: form.instructions.trim(),
+                    });
+                    push(`${name} updated`, 'success');
+                } else {
+                    await addMedication({
+                        name,
+                        dosage: form.dosage.trim(),
+                        times,
+                        instructions: form.instructions.trim(),
+                    });
+                    push(`${name} added`, 'success');
+                }
+                setDialogOpen(false);
+            } catch (err) {
+                push(
+                    err instanceof Error ? err.message : 'Could not save the medication.',
+                    'error',
+                );
+            }
+        })();
     };
+
+    if (status === 'loading') {
+        return (
+            <div className="space-y-6">
+                <h1 className="text-2xl font-bold">Medications</h1>
+                <PageSkeleton />
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6">
@@ -96,6 +116,13 @@ export default function Medications() {
                 <h1 className="text-2xl font-bold">Medications</h1>
                 <Button onClick={openAdd}>Add medication</Button>
             </div>
+
+            {error && (
+                <ErrorBanner
+                    message={`${error} Showing ${status === 'error' ? 'last loaded' : 'demo'} data.`}
+                    onRetry={() => void refresh()}
+                />
+            )}
 
             {medications.length === 0 ? (
                 <EmptyState

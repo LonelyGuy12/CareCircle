@@ -8,11 +8,22 @@ import {
     CardHeader,
     CardTitle,
     EmptyState,
+    ErrorBanner,
+    PageSkeleton,
 } from '../components/ui';
 import { useCareCircle } from '../state/care-circle';
 
 export default function Summaries() {
-    const { summaries } = useCareCircle();
+    const { summaries, status, error, dataSource, refresh } = useCareCircle();
+
+    if (status === 'loading') {
+        return (
+            <div className="space-y-6">
+                <h1 className="text-2xl font-bold">Daily Summaries</h1>
+                <PageSkeleton />
+            </div>
+        );
+    }
 
     if (summaries.length === 0) {
         return (
@@ -36,7 +47,16 @@ export default function Summaries() {
 
     return (
         <div className="space-y-6">
-            <h1 className="text-2xl font-bold">Daily Summaries</h1>
+            <div className="flex flex-wrap items-end justify-between gap-2">
+                <h1 className="text-2xl font-bold">Daily Summaries</h1>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Source: {dataSource}</p>
+            </div>
+            {error && (
+                <ErrorBanner
+                    message={`${error} Showing ${status === 'error' ? 'last loaded' : 'demo'} data.`}
+                    onRetry={() => void refresh()}
+                />
+            )}
             {summaries.map((s) => (
                 <Card key={s.id}>
                     <CardHeader>
