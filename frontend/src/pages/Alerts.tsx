@@ -1,10 +1,18 @@
-import { Badge, Button, Card, CardContent, EmptyState, useToast } from '../components/ui';
+import {
+    Badge,
+    Button,
+    Card,
+    CardContent,
+    EmptyState,
+    ErrorBanner,
+    useToast,
+} from '../components/ui';
 import { cn } from '../lib/cn';
 import { useCareCircle } from '../state/care-circle';
 import { formatTime } from '../utils';
 
 export default function Alerts() {
-    const { alerts, markAlertRead, markAllAlertsRead } = useCareCircle();
+    const { alerts, markAlertRead, markAllAlertsRead, status, error, refresh } = useCareCircle();
     const { push } = useToast();
     const unread = alerts.filter((a) => !a.read);
 
@@ -35,6 +43,18 @@ export default function Alerts() {
                     </Button>
                 )}
             </div>
+
+            {error && (
+                <ErrorBanner
+                    message={`${error} Alert read-state stays on this device until the backend adds alert endpoints.`}
+                    onRetry={() => void refresh()}
+                />
+            )}
+            {status !== 'live' && status !== 'loading' && (
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                    Alerts are stored on this device for now.
+                </p>
+            )}
 
             {alerts.length === 0 ? (
                 <EmptyState title="No alerts" description="You are all caught up." />

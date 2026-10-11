@@ -41,7 +41,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             <div
                 aria-live="polite"
                 aria-atomic="false"
-                className="pointer-events-none fixed bottom-4 left-1/2 z-50 flex w-full max-w-md -translate-x-1/2 flex-col gap-2 px-4"
+                className="pointer-events-none fixed bottom-20 left-1/2 z-50 flex w-full max-w-md -translate-x-1/2 flex-col gap-2 px-4 md:bottom-4"
             >
                 {toasts.map((t) => (
                     <div

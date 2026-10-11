@@ -224,7 +224,7 @@ export default function Layout() {
             {/* Mobile bottom nav */}
             <nav
                 aria-label="Care sections"
-                className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur md:hidden dark:border-slate-800 dark:bg-slate-900/95"
+                className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden dark:border-slate-800 dark:bg-slate-900/95"
             >
                 <ul className="grid grid-cols-6">
                     {links.map(({ to, label, Icon }) => (
