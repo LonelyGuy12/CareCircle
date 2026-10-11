@@ -24,7 +24,28 @@ export function Dialog({ open, onClose, title, description, children }: DialogPr
         panelRef.current?.focus();
 
         const onKey = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') onClose();
+            if (e.key === 'Escape') {
+                onClose();
+                return;
+            }
+            // Keep Tab cycling inside the modal (keyboard trap).
+            if (e.key !== 'Tab' || !panelRef.current) return;
+            const focusables = panelRef.current.querySelectorAll<HTMLElement>(
+                'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+            );
+            const items = [...focusables].filter(
+                (el) => !el.hasAttribute('disabled') && el.offsetParent !== null,
+            );
+            if (items.length === 0) return;
+            const first = items[0];
+            const last = items[items.length - 1];
+            if (e.shiftKey && document.activeElement === first) {
+                e.preventDefault();
+                last?.focus();
+            } else if (!e.shiftKey && document.activeElement === last) {
+                e.preventDefault();
+                first?.focus();
+            }
         };
         document.addEventListener('keydown', onKey);
         return () => {
@@ -54,7 +75,7 @@ export function Dialog({ open, onClose, title, description, children }: DialogPr
                 aria-labelledby={titleId}
                 aria-describedby={description ? descId : undefined}
                 className={cn(
-                    'relative w-full max-w-lg rounded-2xl border bg-white p-6 shadow-xl',
+                    'relative max-h-[90dvh] w-full max-w-lg overflow-y-auto rounded-2xl border bg-white p-6 shadow-xl',
                     'border-slate-200 dark:border-slate-700 dark:bg-slate-900',
                 )}
             >

@@ -143,7 +143,11 @@ export function ChatBox() {
                     )}
                     <div ref={bottomRef} />
                 </div>
-                <div className="mt-3 flex flex-wrap gap-2" aria-label="Suggested questions">
+                <div
+                    className="mt-3 flex flex-wrap gap-2"
+                    role="group"
+                    aria-label="Suggested questions"
+                >
                     {SUGGESTED.map((s) => (
                         <button
                             key={s}
