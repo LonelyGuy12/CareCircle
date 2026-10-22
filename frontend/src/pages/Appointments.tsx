@@ -1,4 +1,4 @@
-import { type FormEvent, useState } from 'react';
+import { type FormEvent,useState } from 'react';
 
 import { appointmentInputSchema, toFieldErrors } from '../../../shared/schemas';
 import {
@@ -54,8 +54,7 @@ export default function Appointments() {
     const [editing, setEditing] = useState<Appointment | null>(null);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [form, setForm] = useState<ApptFormState>(EMPTY);
-    const [errors, setErrors] = useState<Partial<Record<keyof ApptFormState, string>>>({});
-
+    const [errors, setErrors] = useState<Record<string, string>>({});
     const sorted = [...appointments].sort((a, b) => a.dateTime.localeCompare(b.dateTime));
 
     const openAdd = () => {
@@ -74,16 +73,17 @@ export default function Appointments() {
 
     const onSubmit = (e: FormEvent) => {
         e.preventDefault();
-        const found = validate(form);
+        const currentForm = form;
+        const found = validate(currentForm);
         setErrors(found);
         if (Object.keys(found).length > 0) return;
-        const title = form.title.trim();
+        const title = currentForm.title.trim();
         const payload = {
             title,
-            doctor: form.doctor.trim(),
-            location: form.location.trim(),
-            dateTime: new Date(form.dateTime).toISOString(),
-            notes: form.notes.trim(),
+            doctor: currentForm.doctor.trim(),
+            location: currentForm.location.trim(),
+            dateTime: new Date(currentForm.dateTime).toISOString(),
+            notes: currentForm.notes.trim(),
         };
         void (async () => {
             try {
@@ -149,7 +149,7 @@ export default function Appointments() {
                                             {a.doctor} · {a.location}
                                         </p>
                                         {a.notes && (
-                                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                                            <p className="text-slate-500 dark:text-slate-400">
                                                 {a.notes}
                                             </p>
                                         )}
