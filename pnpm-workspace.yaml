@@ -1,10 +1,7 @@
 packages:
     - 'backend'
     - 'frontend'
-    - 'web'
-    - 'app'
     - 'mcp-server'
 allowBuilds:
-    argon2: true
-    bcrypt: true
-    esbuild: true
+    argon2: false
+    esbuild: false
