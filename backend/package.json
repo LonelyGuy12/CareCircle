@@ -6,7 +6,7 @@
     "scripts": {
         "start": "node dist/main.js",
         "dev": "tsx watch src/main.ts",
-        "build": "tsc",
+        "build": "tsc && tsc-alias",
         "typecheck": "tsc --noEmit",
         "test": "tsx --test src/modules/health/health.test.ts src/modules/medications/medications.test.ts src/modules/doses/doses.test.ts src/modules/appointments/appointments.test.ts src/modules/summaries/summaries.test.ts",
         "lint": "eslint src/",
