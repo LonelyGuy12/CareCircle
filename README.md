@@ -20,14 +20,6 @@
       Launch Live Demo
     </button>
   </a>
-  <span style="margin-left: 16px; font-size: 14px; color: #666;">
-    • 
-    <a href="https://youtu.be/qsxeMnJKk54" target="_blank" style="color: #666; text-decoration: none;">
-      Watch Demo Video
-    </a>
-  </span>
-  <br><br>
-  <small><em>Note: Demo video link is a placeholder — replace with actual video URL when available.</em></small>
 </p>
 
 <p align="center">
@@ -68,7 +60,6 @@ A caregiving platform designed to help elderly users and caregivers coordinate e
 | Action            | Link                                                                                   |
 | ----------------- | -------------------------------------------------------------------------------------- |
 | 🌐 **Live Demo**  | [https://carecircle12.onrender.com/](https://carecircle12.onrender.com/)               |
-| 📺 **Demo Video** | [https://youtu.be/qsxeMnJKk54](https://youtu.be/qsxeMnJKk54)                           |
 | 💻 **Repository** | [https://github.com/LonelyGuy12/CareCircle](https://github.com/LonelyGuy12/CareCircle) |
 
 <hr />
@@ -80,8 +71,7 @@ A caregiving platform designed to help elderly users and caregivers coordinate e
 |                                                                                                                                                   |                                                                                                                                               |
 | ------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | <img src="docs/images/landing-page.svg" alt="CareCircle landing page" width="525"/> <br>_Landing page with demo login flow_                       | <img src="docs/images/elderly-dashboard.svg" alt="Elderly user dashboard" width="525"/> <br>_Elderly user dashboard with medication overview_ |
-| <img src="docs/images/caregiver-dashboard.svg" alt="Caregiver dashboard" width="525"/> <br>_Caregiver dashboard with overview of care activities_ | <img src="docs/images/medication-management.svg" alt="Medication management" width="525"/> <br>_Medication add/edit form with validation_     |
-| <img src="docs/images/emergency-sos.svg" alt="Emergency SOS workflow" width="525"/> <br>_Emergency SOS activation and confirmation_               | <img src="docs/images/health-analytics.svg" alt="Health analytics" width="525"/> <br>_Weekly adherence chart and AI summaries_                |
+| <img src="docs/images/caregiver-dashboard.svg" alt="Caregiver dashboard" width="525"/> <br>_Caregiver dashboard with overview of care activities_ | <img src="docs/images/health-analytics.svg" alt="Health analytics" width="525"/> <br>_Weekly adherence chart and AI summaries_                |
 
 </div>
 
@@ -233,12 +223,14 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A[Login/Register] -->|Token| B[Auth Middleware]
-    B -->|Validate| C[Protected Routes]
+    A[Login/Register] -->|JWT Token| B[Auth Middleware]
+    B -->|Validate & Attach User| C[Protected Routes]
     C -->|API Calls| D[Backend Routes]
-    D -->|SQL/NoSQL| G[(Database)]
-    G -->|Return Data| C
+    D -->|DynamoDB/In-Memory| G[(DynamoDB Local + In-Memory)]
+    G -->|Return Data| D
+    D -->|Response| C
     C -->|Refresh Token| A
+
     style A fill:#e3f2fd, stroke:#1565c0
     style B fill:#e8f5e9, stroke:#2e7d32
     style C fill:#e3f2fd, stroke:#1565c0
@@ -392,7 +384,7 @@ The frontend runs on `http://localhost:5173` by default.
 ### 7. Application Access
 
 - **Local**: http://localhost:5173
-- **Live API** (with `VITE_API_URL`): http://localhost:5500/api/...
+- **Live API** (with `VITE_API_URL`): http://localhost:3000/api/...
 - **Render deployment**: https://carecircle12.onrender.com/
 
 ### 8. Test Execution
