@@ -1,5 +1,11 @@
 # CareCircle
 
+<p align="center">
+  <a href="https://carecircle12.onrender.com/">
+    <img src="docs/images/carecircle-thumbnail.png" alt="CareCircle — Calm caregiving, connected" width="100%" />
+  </a>
+</p>
+
 <a href="https://carecircle12.onrender.com/" target="_blank">
   <img
     src="docs/images/logo.svg"
