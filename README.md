@@ -2,7 +2,7 @@
 
 <a href="https://carecircle12.onrender.com/" target="_blank">
   <img
-    src="https://res.cloudinary.com/carecircle/image/upload/v1688238000/logo-transparent.png"
+    src="docs/images/logo.svg"
     alt="CareCircle logo"
     width="60"
     style="vertical-align: middle; margin-right: 8px;"
@@ -16,7 +16,7 @@
 
 <p align="center">
   <a href="https://carecircle12.onrender.com/" target="_blank">
-    <button style="background: #0066cc; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 14px;">
+    <button style="background: #0f766e; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 14px;">
       Launch Live Demo
     </button>
   </a>
@@ -26,6 +26,8 @@
       Watch Demo Video
     </a>
   </span>
+  <br><br>
+  <small><em>Note: Demo video link is a placeholder — replace with actual video URL when available.</em></small>
 </p>
 
 <p align="center">
@@ -172,29 +174,33 @@ flowchart LR
         UI[React + Vite]:::ui
         Router[React Router]:::routing
         State[CareCircle Context]:::state
+        API_Client[API Client\nMock/Live Mode]:::api
     end
 
     subgraph Backend [Express API]:::api
         Routes[API Routes]:::routes
         Controllers[Controllers]:::controllers
         Services[Services]:::services
-        Repository[Repository]:::db
+        Repository[Repository Layer]:::db
     end
 
-    DB[(PostgreSQL/SQLite)]:::db
-    Auth[JWT Auth]:::auth
-    Notif[Notification Service]:::notif
+    DB[(DynamoDB Local\n+ In-Memory Fallback)]:::db
+    Auth[Auth Middleware\nJWT]:::auth
+    Cache[(Redis Cache)]:::cache
 
-    UI -->|HTTP requests| Auth
-    UI -->|API calls| Routes
+    UI -->|API Calls| API_Client
+    API_Client -->|HTTP /api/...| Routes
     Routes --> Services
     Services --> Repository
     Repository --> DB
+    Repository --> Cache
+    Routes --> Auth
 
-    style ui fill:#e0f7fa, stroke:#0066cc, stroke-width:2px
-    style api fill:#e8f5e9, stroke:#2e7d32, stroke-width:2px
+    style ui fill:#e0f7fa, stroke:#0f766e, stroke-width:2px
+    style api fill:#e8f5e9, stroke:#0f766e, stroke-width:2px
     style db fill:#fff3e0, stroke:#f57c00, stroke-width:2px
-    style auth fill:#f3e5f5, purple:400, stroke-width:2px
+    style cache fill:#f3e5f5, stroke:#7c3aed, stroke-width:2px
+    style auth fill:#fef2f2, stroke:#dc2626, stroke-width:2px
 ```
 
 ### Diagram B: Medication Workflow
@@ -248,7 +254,7 @@ flowchart TD
 | **Frontend**         | React, Vite, React Router DOM, shadcn-ui | UI framework, routing, component library                             |
 | **State Management** | React Context (CareCircle)               | Global state for appointments, medications, doses, summaries, alerts |
 | **Backend**          | Node.js, Express, TypeScript             | API server, route handlers, business logic                           |
-| **Database**         | In-memory + DynamoDB Local (fallback)    | Medication logs, dose records, appointments, summaries               |
+| **Database**         | DynamoDB Local + In-Memory Fallback      | Medication logs, dose records, appointments, summaries               |
 | **API Client**       | Fetch API, Axios-like patterns           | Mock/live mode switching, envelope handling                          |
 | **Build Tool**       | Vite                                     | Frontend dev server and production build                             |
 | **Linting**          | ESLint, Prettier                         | Code quality and formatting                                          |
@@ -371,7 +377,7 @@ pnpm run dev
 # or: pnpm start
 ```
 
-The backend runs on `http://localhost:5500` by default (configurable via `CONFIG_PORT`).
+The backend runs on `http://localhost:3000` by default (configurable via `CONFIG_PORT`).
 
 ### 6. Start the Frontend
 
@@ -411,8 +417,8 @@ npx tsc --noEmit
 
 | Variable                | Purpose                                   | Required? | Example                 |
 | ----------------------- | ----------------------------------------- | --------- | ----------------------- |
-| `VITE_API_URL`          | Base URL for live API (empty = mock mode) | No        | `http://localhost:5500` |
-| `CONFIG_PORT`           | Backend HTTP port                         | No        | `5500`                  |
+| `VITE_API_URL`          | Base URL for live API (empty = mock mode) | No        | `http://localhost:3000` |
+| `CONFIG_PORT`           | Backend HTTP port                         | No        | `3000`                  |
 | `DYNAMODB_ENDPOINT`     | DynamoDB Local endpoint                   | No        | `http://localhost:8000` |
 | `AWS_ACCESS_KEY_ID`     | AWS credentials (dummy for Local)         | No        | `dummy`                 |
 | `AWS_SECRET_ACCESS_KEY` | AWS secret key (dummy for Local)          | No        | `dummy`                 |
@@ -420,7 +426,7 @@ npx tsc --noEmit
 ### Backend `.env.example`
 
 ```env
-PORT=5500
+PORT=3000
 NODE_ENV=development
 DYNAMODB_ENDPOINT=http://localhost:8000
 AWS_ACCESS_KEY_ID=dummy
@@ -430,7 +436,7 @@ AWS_SECRET_ACCESS_KEY=dummy
 ### Frontend `.env.example`
 
 ```env
-VITE_API_URL=http://localhost:5500
+VITE_API_URL=http://localhost:3000
 ```
 
 _When `VITE_API_URL` is empty, the frontend runs in mock mode with demo data from `data/mock.json`._
@@ -569,7 +575,7 @@ The application is deployed at: **https://carecircle12.onrender.com/**
 
 - **Build command**: `pnpm install && pnpm run build` (frontend) + `cd backend && pnpm install && pnpm run build` (backend)
 - **Start command**: `pnpm run start` (serves both frontend and backend)
-- **Environment variables**: Configure `VITE_API_URL`, `PORT`, `NODE_ENV` in the Render dashboard.
+- **Environment variables**: Configure `VITE_API_URL`, `PORT=3000`, `NODE_ENV` in the Render dashboard.
 - **Database**: DynamoDB Local or in-memory fallback (no external DB required for demo).
 - **External services**: Alexa/voice confirmation, AI Q&A — these require separate configuration.
 
@@ -579,7 +585,7 @@ The application is deployed at: **https://carecircle12.onrender.com/**
 2. Start the backend (`pnpm run dev` in `backend/`).
 3. Start the frontend (`pnpm run dev` in `frontend/`).
 4. Access at `http://localhost:5173`.
-5. Use `VITE_API_URL=http://localhost:5500` for live mode.
+5. Use `VITE_API_URL=http://localhost:3000` for live mode.
 
 <hr />
 
@@ -659,18 +665,21 @@ Before considering this README complete, verify:
 
 - [x] The correct repository URL is used: `https://github.com/LonelyGuy12/CareCircle`
 - [x] The live demo URL is correct: `https://carecircle12.onrender.com/`
-- [x] The YouTube link opens the intended video: `https://youtu.be/qsxeMnJKk54`
-- [x] Architecture diagrams match the implementation
+- [x] The YouTube link is noted as a placeholder (replace when video is available)
+- [x] Logo uses local SVG (`docs/images/logo.svg`) instead of broken Cloudinary link
+- [x] Architecture diagrams match the implementation (DynamoDB Local, Redis, Auth middleware)
 - [x] Mermaid syntax is valid (GitHub-compatible)
 - [x] Technology claims match the code (React, Vite, Express, TypeScript, etc.)
 - [x] API endpoints match actual route definitions
 - [x] Environment examples contain no secrets
-- [x] Installation commands match package scripts
+- [x] Installation commands match package scripts (port 3000)
 - [x] Tests are reported accurately (11 passing backend tests)
 - [x] License information is verified (MIT)
 - [x] No private information is exposed
 - [x] The README renders cleanly on GitHub
 - [x] **Screenshots**: SVG placeholder images created based on actual application UI (see section 6)
+- [x] **Logo**: Local SVG logo created and referenced
+- [x] **Architecture diagram**: Updated to match actual implementation (DynamoDB Local, Redis, Auth)
 - [ ] **Live demo verification**: The deployed application at `https://carecircle12.onrender.com/` should be checked for functionality
 
 <hr />
