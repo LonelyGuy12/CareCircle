@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="850" height="600" viewBox="0 0 850 600">
+  <rect width="850" height="600" fill="#fef2f2"/>
+  <rect x="0" y="0" width="850" height="72" fill="#dc2626"/>
+  <text x="32" y="48" font-family="system-ui, sans-serif" font-size="24" font-weight="600" fill="white">CareCircle</text>
+  <text x="425" y="48" font-family="system-ui, sans-serif" font-size="16" font-weight="400" fill="rgba(255,255,255,0.8)">Emergency SOS</text>
+  <rect x="200" y="130" width="450" height="340" rx="16" fill="white" stroke="#fecaca" stroke-width="3"/>
+  <circle cx="425" cy="200" r="50" fill="#fecaca" stroke="#dc2626" stroke-width="4"/>
+  <text x="425" y="210" font-family="system-ui, sans-serif" font-size="32" font-weight="700" fill="#dc2626" text-anchor="middle">SOS</text>
+  <text x="425" y="280" font-family="system-ui, sans-serif" font-size="24" font-weight="700" fill="#991b1b" text-anchor="middle">Emergency Signal</text>
+  <text x="425" y="315" font-family="system-ui, sans-serif" font-size="16" fill="#7f1d1d" text-anchor="middle">Tap to activate emergency alert</text>
+  <text x="425" y="335" font-family="system-ui, sans-serif" font-size="14" fill="#991b1b" text-anchor="middle">Caregiver and emergency contacts will be notified</text>
+  <rect x="250" y="370" width="150" height="52" rx="10" fill="#dc2626"/>
+  <text x="325" y="405" font-family="system-ui, sans-serif" font-size="18" font-weight="700" fill="white" text-anchor="middle">Activate SOS</rect>
+  <rect x="450" y="370" width="150" height="52" rx="10" fill="transparent" stroke="#dc2626" stroke-width="2"/>
+  <text x="525" y="405" font-family="system-ui, sans-serif" font-size="18" font-weight="700" fill="#dc2626" text-anchor="middle">Cancel</text>
+  <rect x="200" y="450" width="450" height="80" rx="12" fill="#fff1f2" stroke="#fecaca" stroke-width="2"/>
+  <text x="425" y="485" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#dc2626" text-anchor="middle">⚠️ This does not replace calling emergency services</text>
+  <text x="425" y="505" font-family="system-ui, sans-serif" font-size="12" fill="#991b1b" text-anchor="middle">In a medical emergency, call 911 (US) or your local emergency number</text>
+</svg>

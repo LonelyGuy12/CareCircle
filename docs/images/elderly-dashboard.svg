@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="850" height="600" viewBox="0 0 850 600">
+  <rect width="850" height="600" fill="#f8fafc"/>
+  <rect x="0" y="0" width="850" height="72" fill="#0f766e"/>
+  <text x="32" y="48" font-family="system-ui, sans-serif" font-size="24" font-weight="600" fill="white">CareCircle</text>
+  <text x="425" y="48" font-family="system-ui, sans-serif" font-size="16" font-weight="400" fill="rgba(255,255,255,0.8)">Margaret Thomas, 78</text>
+  <text x="425" y="120" font-family="system-ui, sans-serif" font-size="28" font-weight="700" fill="#0f172a" text-anchor="middle">Today</text>
+  <rect x="50" y="160" width="233" height="120" rx="12" fill="white" stroke="#e2e8f0" stroke-width="2"/>
+  <text x="166" y="195" font-family="system-ui, sans-serif" font-size="14" fill="#64748b" text-anchor="middle">Today's doses</text>
+  <text x="166" y="235" font-family="system-ui, sans-serif" font-size="32" font-weight="700" fill="#0f766e" text-anchor="middle">2 of 4 taken</text>
+  <rect x="308" y="160" width="233" height="120" rx="12" fill="white" stroke="#e2e8f0" stroke-width="2"/>
+  <text x="425" y="195" font-family="system-ui, sans-serif" font-size="14" fill="#64748b" text-anchor="middle">Next appointment</text>
+  <text x="425" y="235" font-family="system-ui, sans-serif" font-size="18" font-weight="600" fill="#0f172a" text-anchor="middle">Cardiology check-up</text>
+  <text x="425" y="260" font-family="system-ui, sans-serif" font-size="14" fill="#64748b" text-anchor="middle">Sep 26, 10:30 AM · Dr. Rao</text>
+  <rect x="566" y="160" width="233" height="120" rx="12" fill="white" stroke="#e2e8f0" stroke-width="2"/>
+  <text x="683" y="195" font-family="system-ui, sans-serif" font-size="14" fill="#64748b" text-anchor="middle">Unread alerts</text>
+  <text x="683" y="235" font-family="system-ui, sans-serif" font-size="32" font-weight="700" fill="#dc2626" text-anchor="middle">1 unread</text>
+  <rect x="50" y="300" width="750" height="260" rx="12" fill="white" stroke="#e2e8f0" stroke-width="2"/>
+  <text x="75" y="335" font-family="system-ui, sans-serif" font-size="18" font-weight="600" fill="#0f172a">Today's dose timeline</text>
+  <text x="75" y="360" font-family="system-ui, sans-serif" font-size="14" fill="#64748b">Confirm each dose as it is taken</text>
+  <rect x="75" y="380" width="700" height="40" rx="8" fill="#f0fdf4" stroke="#86efac" stroke-width="1"/>
+  <text x="100" y="408" font-family="system-ui, sans-serif" font-size="16" font-weight="600" fill="#0f172a">Amlodipine 5 mg</text>
+  <text x="350" y="408" font-family="system-ui, sans-serif" font-size="14" fill="#64748b">09:00 AM</text>
+  <rect x="550" y="380" width="100" height="28" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="1"/>
+  <text x="600" y="402" font-family="system-ui, sans-serif" font-size="12" font-weight="600" fill="#166534">Mark taken</text>
+  <rect x="75" y="440" width="700" height="40" rx="8" fill="#fef3c7" stroke="#fcd34d" stroke-width="1"/>
+  <text x="100" y="468" font-family="system-ui, sans-serif" font-size="16" font-weight="600" fill="#0f172a">Metformin 500 mg</text>
+  <text x="350" y="468" font-family="system-ui, sans-serif" font-size="14" fill="#64748b">09:00 AM</text>
+  <rect x="550" y="440" width="100" height="28" rx="6" fill="#fef9c3" stroke="#ca8a04" stroke-width="1"/>
+  <text x="600" y="462" font-family="system-ui, sans-serif" font-size="12" font-weight="600" fill="#854d0e">Mark taken</text>
+  <rect x="75" y="500" width="700" height="40" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="100" y="528" font-family="system-ui, sans-serif" font-size="16" font-weight="600" fill="#0f172a">Atorvastatin 10 mg</text>
+  <text x="350" y="528" font-family="system-ui, sans-serif" font-size="14" fill="#64748b">09:00 PM</text>
+  <rect x="550" y="500" width="100" height="28" rx="6" fill="#fef9c3" stroke="#ca8a04" stroke-width="1"/>
+  <text x="600" y="522" font-family="system-ui, sans-serif" font-size="12" font-weight="600" fill="#854d0e">Mark taken</text>
+</svg>

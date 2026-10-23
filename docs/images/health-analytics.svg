@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="850" height="600" viewBox="0 0 850 600">
+  <rect width="850" height="600" fill="#f8fafc"/>
+  <rect x="0" y="0" width="850" height="72" fill="#0f766e"/>
+  <text x="32" y="48" font-family="system-ui, sans-serif" font-size="24" font-weight="600" fill="white">CareCircle</text>
+  <text x="425" y="48" font-family="system-ui, sans-serif" font-size="16" font-weight="400" fill="rgba(255,255,255,0.8)">Health Analytics</text>
+  <rect x="50" y="100" width="750" height="80" rx="12" fill="white" stroke="#e2e8f0" stroke-width="2"/>
+  <text x="75" y="145" font-family="system-ui, sans-serif" font-size="24" font-weight="700" fill="#0f172a">Weekly Adherence</text>
+  <text x="75" y="170" font-family="system-ui, sans-serif" font-size="14" fill="#64748b">Percentage of doses taken on time each day</text>
+  <rect x="50" y="200" width="750" height="180" rx="12" fill="white" stroke="#e2e8f0" stroke-width="2"/>
+  <rect x="75" y="220" width="80" height="120" rx="4" fill="#86efac"/>
+  <text x="115" y="410" font-family="system-ui, sans-serif" font-size="12" fill="#166534" text-anchor="middle">Mon 100%</text>
+  <rect x="175" y="250" width="80" height="90" rx="4" fill="#fcd34d"/>
+  <text x="215" y="410" font-family="system-ui, sans-serif" font-size="12" fill="#854d0e" text-anchor="middle">Tue 80%</text>
+  <rect x="275" y="220" width="80" height="120" rx="4" fill="#86efac"/>
+  <text x="315" y="410" font-family="system-ui, sans-serif" font-size="12" fill="#166534" text-anchor="middle">Wed 100%</text>
+  <rect x="375" y="280" width="80" height="60" rx="4" fill="#fca5a5"/>
+  <text x="415" y="410" font-family="system-ui, sans-serif" font-size="12" fill="#dc2626" text-anchor="middle">Thu 60%</text>
+  <rect x="475" y="220" width="80" height="120" rx="4" fill="#86efac"/>
+  <text x="515" y="410" font-family="system-ui, sans-serif" font-size="12" fill="#166534" text-anchor="middle">Fri 100%</text>
+  <rect x="575" y="250" width="80" height="90" rx="4" fill="#fcd34d"/>
+  <text x="615" y="410" font-family="system-ui, sans-serif" font-size="12" fill="#854d0e" text-anchor="middle">Sat 80%</text>
+  <rect x="675" y="220" width="80" height="120" rx="4" fill="#86efac"/>
+  <text x="715" y="410" font-family="system-ui, sans-serif" font-size="12" fill="#166534" text-anchor="middle">Sun 100%</text>
+  <rect x="50" y="420" width="360" height="150" rx="12" fill="white" stroke="#e2e8f0" stroke-width="2"/>
+  <text x="75" y="455" font-family="system-ui, sans-serif" font-size="18" font-weight="600" fill="#0f172a">Latest AI Summary</text>
+  <text x="75" y="485" font-family="system-ui, sans-serif" font-size="14" fill="#64748b">Good day: all 5 doses taken.</text>
+  <text x="75" y="505" font-family="system-ui, sans-serif" font-size="13" fill="#64748b">Margaret took all her medications on time, confirming</text>
+  <text x="75" y="520" font-family="system-ui, sans-serif" font-size="13" fill="#64748b">each through Alexa. Her cardiology check-up is on</text>
+  <text x="75" y="535" font-family="system-ui, sans-serif" font-size="13" fill="#64748b">Friday at 10:30am, so please bring her recent BP readings.</text>
+  <rect x="430" y="420" width="370" height="150" rx="12" fill="white" stroke="#e2e8f0" stroke-width="2"/>
+  <text x="455" y="455" font-family="system-ui, sans-serif" font-size="18" font-weight="600" fill="#0f172a">AI Medicine Assistant</text>
+  <text x="455" y="485" font-family="system-ui, sans-serif" font-size="14" fill="#64748b">Ask questions about medications</text>
+  <rect x="455" y="505" width="320" height="40" rx="8" fill="#f0fdf4" stroke="#86efac" stroke-width="1"/>
+  <text x="615" y="532" font-family="system-ui, sans-serif" font-size="13" fill="#166534" text-anchor="middle">"How was Mom's week?"</text>
+</svg>

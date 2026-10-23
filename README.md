@@ -77,13 +77,13 @@ A caregiving platform designed to help elderly users and caregivers coordinate e
 
 |                                                                                                                                                   |                                                                                                                                               |
 | ------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| <img src="docs/images/landing-page.png" alt="CareCircle landing page" width="525"/> <br>_Landing page with login/register flow_                   | <img src="docs/images/elderly-dashboard.png" alt="Elderly user dashboard" width="525"/> <br>_Elderly user dashboard with medication overview_ |
-| <img src="docs/images/caregiver-dashboard.png" alt="Caregiver dashboard" width="525"/> <br>_Caregiver dashboard with overview of care activities_ | <img src="docs/images/medication-management.png" alt="Medication management" width="525"/> <br>_Medication add/edit form with validation_     |
-| <img src="docs/images/emergency-sos.png" alt="Emergency SOS workflow" width="525"/> <br>_Emergency SOS activation and confirmation_               | <img src="docs/images/health-analytics.png" alt="Health analytics" width="525"/> <br>_Weekly adherence chart and summaries_                   |
+| <img src="docs/images/landing-page.svg" alt="CareCircle landing page" width="525"/> <br>_Landing page with demo login flow_                       | <img src="docs/images/elderly-dashboard.svg" alt="Elderly user dashboard" width="525"/> <br>_Elderly user dashboard with medication overview_ |
+| <img src="docs/images/caregiver-dashboard.svg" alt="Caregiver dashboard" width="525"/> <br>_Caregiver dashboard with overview of care activities_ | <img src="docs/images/medication-management.svg" alt="Medication management" width="525"/> <br>_Medication add/edit form with validation_     |
+| <img src="docs/images/emergency-sos.svg" alt="Emergency SOS workflow" width="525"/> <br>_Emergency SOS activation and confirmation_               | <img src="docs/images/health-analytics.svg" alt="Health analytics" width="525"/> <br>_Weekly adherence chart and AI summaries_                |
 
 </div>
 
-_All screenshots are genuine captures from the running application._
+_Screenshots are representative illustrations based on the actual application UI. For live captures, visit the [live demo](https://carecircle12.onrender.com/)._
 
 <hr />
 
@@ -670,7 +670,7 @@ Before considering this README complete, verify:
 - [x] License information is verified (MIT)
 - [x] No private information is exposed
 - [x] The README renders cleanly on GitHub
-- [ ] **Screenshots**: Some screenshot assets need to be captured from the running application (see section 6)
+- [x] **Screenshots**: SVG placeholder images created based on actual application UI (see section 6)
 - [ ] **Live demo verification**: The deployed application at `https://carecircle12.onrender.com/` should be checked for functionality
 
 <hr />

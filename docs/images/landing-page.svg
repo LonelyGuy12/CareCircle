@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="850" height="600" viewBox="0 0 850 600">
+  <rect width="850" height="600" fill="#f8fafc"/>
+  <rect x="0" y="0" width="850" height="72" fill="#0f766e"/>
+  <text x="32" y="48" font-family="system-ui, sans-serif" font-size="24" font-weight="600" fill="white">CareCircle</text>
+  <text x="425" y="140" font-family="system-ui, sans-serif" font-size="36" font-weight="700" fill="#0f172a" text-anchor="middle">Connected Care, Greater Peace of Mind</text>
+  <text x="425" y="185" font-family="system-ui, sans-serif" font-size="18" fill="#475569" text-anchor="middle">A caregiving platform for medication management, appointment coordination, and health summarization</text>
+  <rect x="300" y="230" width="250" height="52" rx="8" fill="#0f766e"/>
+  <text x="425" y="266" font-family="system-ui, sans-serif" font-size="18" font-weight="600" fill="white" text-anchor="middle">Launch Live Demo</text>
+  <rect x="300" y="300" width="250" height="52" rx="8" fill="transparent" stroke="#0f766e" stroke-width="2"/>
+  <text x="425" y="336" font-family="system-ui, sans-serif" font-size="18" font-weight="600" fill="#0f766e" text-anchor="middle">Watch Demo Video</text>
+  <rect x="150" y="400" width="550" height="150" rx="12" fill="white" stroke="#e2e8f0" stroke-width="2"/>
+  <text x="425" y="440" font-family="system-ui, sans-serif" font-size="20" font-weight="600" fill="#0f172a" text-anchor="middle">Today's Dashboard</text>
+  <text x="425" y="485" font-family="system-ui, sans-serif" font-size="14" fill="#64748b" text-anchor="middle">4 medications · 2 appointments · 80% adherence this week</text>
+  <rect x="170" y="500" width="160" height="32" rx="6" fill="#f0fdf4" stroke="#86efac" stroke-width="1"/>
+  <text x="250" y="523" font-family="system-ui, sans-serif" font-size="12" fill="#166534" text-anchor="middle">Amlodipine 5 mg — 09:00</text>
+  <rect x="350" y="500" width="160" height="32" rx="6" fill="#fef3c7" stroke="#fcd34d" stroke-width="1"/>
+  <text x="430" y="523" font-family="system-ui, sans-serif" font-size="12" fill="#854d0e" text-anchor="middle">Metformin 500 mg — 09:00</text>
+  <rect x="530" y="500" width="160" height="32" rx="6" fill="#fef3c7" stroke="#fcd34d" stroke-width="1"/>
+  <text x="610" y="523" font-family="system-ui, sans-serif" font-size="12" fill="#854d0e" text-anchor="middle">Metformin 500 mg — 20:00</text>
+</svg>
