@@ -6,8 +6,6 @@
   </a>
 </p>
 
-<h2 align="center">CareCircle</h2>
-
 <p align="center">
 <strong>A caregiving platform for medication management, appointment coordination, and health summarization.</strong>
 </p>
@@ -24,8 +22,8 @@
 
 ## Quick Navigation
 
-[📱 Live Demo](#live-demo) •
-[📺 Video Demo](#video-demo) •
+[📱 Project Links](#project-links) •
+[📺 Video Demo](https://youtu.be/qsxeMnJKk54) •
 [📸 Screenshots](#screenshots) •
 [📋 Overview](#overview) •
 [🩺 Problem Statement](#problem-statement) •
@@ -45,16 +43,14 @@
 
 <hr />
 
-## Hero Section
-
-**CareCircle** — Connected Care, Greater Peace of Mind
-
-A caregiving platform designed to help elderly users and caregivers coordinate everyday care, medication routines, health information, and emergency communication.
+## Project Links
 
 | Action            | Link                                                                                   |
 | ----------------- | -------------------------------------------------------------------------------------- |
 | 🌐 **Live Demo**  | [https://carecircle12.onrender.com/](https://carecircle12.onrender.com/)               |
 | 💻 **Repository** | [https://github.com/LonelyGuy12/CareCircle](https://github.com/LonelyGuy12/CareCircle) |
+| 🏆 **Submission** | [CareCircle on Devpost](https://devpost.com/software/carecircle-51yklv) |
+| 📺 **Video Demo** | [Watch the hackathon demo](https://youtu.be/qsxeMnJKk54) |
 
 <hr />
 
