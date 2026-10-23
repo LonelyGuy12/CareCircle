@@ -6,26 +6,14 @@
   </a>
 </p>
 
-<a href="https://carecircle12.onrender.com/" target="_blank">
-  <img
-    src="docs/images/logo.svg"
-    alt="CareCircle logo"
-    width="60"
-    style="vertical-align: middle; margin-right: 8px;"
-  />
-  <span style="font-size: 1.25rem; font-weight: 600;">CareCircle</span>
-</a>
+<h2 align="center">CareCircle</h2>
 
 <p align="center">
 <strong>A caregiving platform for medication management, appointment coordination, and health summarization.</strong>
 </p>
 
 <p align="center">
-  <a href="https://carecircle12.onrender.com/" target="_blank">
-    <button style="background: #0f766e; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 14px;">
-      Launch Live Demo
-    </button>
-  </a>
+  <a href="https://carecircle12.onrender.com/"><strong>Launch Live Demo →</strong></a>
 </p>
 
 <p align="center">
