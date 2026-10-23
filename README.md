@@ -164,33 +164,41 @@ flowchart LR
         UI[React + Vite]:::ui
         Router[React Router]:::routing
         State[CareCircle Context]:::state
-        API_Client[API Client\nMock/Live Mode]:::api
+        API_Client[API Client\n(Mock/Live Mode)]:::client
     end
 
     subgraph Backend [Express API]:::api
+        Auth[Auth Middleware\n(JWT)]:::auth
         Routes[API Routes]:::routes
-        Controllers[Controllers]:::controllers
-        Services[Services]:::services
-        Repository[Repository Layer]:::db
+        Controllers[Controllers]:::ctrl
+        Services[Services]:::svc
+        Repository[Repository Layer]:::repo
     end
 
     DB[(DynamoDB Local\n+ In-Memory Fallback)]:::db
-    Auth[Auth Middleware\nJWT]:::auth
     Cache[(Redis Cache)]:::cache
 
-    UI -->|API Calls| API_Client
-    API_Client -->|HTTP /api/...| Routes
-    Routes --> Services
+    UI -->|User Actions| Router
+    Router -->|State Updates| State
+    State -->|API Requests| API_Client
+    API_Client -->|HTTP /api/...| Auth
+    Auth -->|Validated Request| Routes
+    Routes --> Controllers
+    Controllers --> Services
     Services --> Repository
     Repository --> DB
     Repository --> Cache
-    Routes --> Auth
 
     style ui fill:#e0f7fa, stroke:#0f766e, stroke-width:2px
+    style client fill:#e8f5e9, stroke:#0f766e, stroke-width:2px,stroke-dasharray: 5 5
     style api fill:#e8f5e9, stroke:#0f766e, stroke-width:2px
+    style auth fill:#fef2f2, stroke:#dc2626, stroke-width:2px
+    style routes fill:#e8f5e9, stroke:#0f766e, stroke-width:2px
+    style ctrl fill:#e8f5e9, stroke:#0f766e, stroke-width:2px
+    style svc fill:#e8f5e9, stroke:#0f766e, stroke-width:2px
+    style repo fill:#e8f5e9, stroke:#0f766e, stroke-width:2px
     style db fill:#fff3e0, stroke:#f57c00, stroke-width:2px
     style cache fill:#f3e5f5, stroke:#7c3aed, stroke-width:2px
-    style auth fill:#fef2f2, stroke:#dc2626, stroke-width:2px
 ```
 
 ### Diagram B: Medication Workflow
